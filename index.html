@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAKSANA Admin</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Inter,Arial,sans-serif;
+}
+
+body{
+    background:#f5f7fb;
+    color:#172033;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:250px;
+    background:#111827;
+    color:white;
+    padding:25px 16px;
+    z-index:100;
+}
+
+.logo{
+    font-size:27px;
+    font-weight:900;
+    padding:0 12px 30px;
+}
+
+.logo span{
+    color:#8b5cf6;
+}
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.menu button{
+    border:0;
+    background:transparent;
+    color:#aeb7c7;
+    padding:14px;
+    border-radius:12px;
+    text-align:left;
+    font-size:15px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.menu button:hover,
+.menu button.active{
+    background:#252d3d;
+    color:white;
+}
+
+.menu button.active{
+    border-left:4px solid #8b5cf6;
+}
+
+/* MAIN */
+.main{
+    margin-left:250px;
+    padding:25px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.page-title h1{
+    font-size:27px;
+}
+
+.page-title p{
+    color:#7b8495;
+    margin-top:5px;
+}
+
+.admin-user{
+    background:white;
+    padding:10px 15px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow:0 5px 20px rgba(0,0,0,.04);
+}
+
+.avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#8b5cf6;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+/* STATS */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:22px;
+}
+
+.stat{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.04);
+}
+
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.stat-icon{
+    width:45px;
+    height:45px;
+    border-radius:13px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:21px;
+}
+
+.purple{background:#ede9fe;}
+.blue{background:#dbeafe;}
+.green{background:#dcfce7;}
+.orange{background:#ffedd5;}
+
+.stat h2{
+    margin-top:17px;
+    font-size:27px;
+}
+
+.stat p{
+    color:#7c8595;
+    font-size:13px;
+    margin-top:4px;
+}
+
+/* CONTENT */
+.grid{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.04);
+}
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.card-header h3{
+    font-size:18px;
+}
+
+.btn{
+    border:0;
+    background:#8b5cf6;
+    color:white;
+    padding:10px 15px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.btn:hover{
+    opacity:.9;
+}
+
+/* ORDERS */
+.order{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 0;
+    border-bottom:1px solid #edf0f5;
+}
+
+.order:last-child{
+    border-bottom:0;
+}
+
+.order-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.order-icon{
+    width:43px;
+    height:43px;
+    border-radius:12px;
+    background:#f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+}
+
+.order-info strong{
+    display:block;
+    font-size:14px;
+}
+
+.order-info small{
+    color:#87909f;
+}
+
+.status{
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.waiting{
+    background:#fef3c7;
+    color:#a16207;
+}
+
+.accepted{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.completed{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.rejected{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+/* QUICK */
+.quick{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.quick button{
+    padding:17px 10px;
+    background:#f8f9fc;
+    border:1px solid #edf0f5;
+    border-radius:14px;
+    cursor:pointer;
+    text-align:left;
+}
+
+.quick button:hover{
+    background:#f0ecff;
+}
+
+.quick b{
+    display:block;
+    margin-top:7px;
+}
+
+/* TABLE */
+.table-card{
+    margin-top:20px;
+    overflow:hidden;
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:15px;
+    text-align:left;
+    border-bottom:1px solid #edf0f5;
+    font-size:14px;
+}
+
+th{
+    color:#7c8595;
+    font-size:12px;
+}
+
+.action{
+    border:0;
+    background:#f3f4f6;
+    padding:7px 10px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* PAGES */
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+/* MOBILE */
+.mobile-header{
+    display:none;
+}
+
+@media(max-width:1000px){
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:700px){
+
+    .sidebar{
+        display:none;
+    }
+
+    .main{
+        margin-left:0;
+        padding:15px;
+        padding-bottom:85px;
+    }
+
+    .mobile-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+    }
+
+    .mobile-logo{
+        font-size:24px;
+        font-weight:900;
+    }
+
+    .mobile-logo span{
+        color:#8b5cf6;
+    }
+
+    .admin-user{
+        padding:7px;
+    }
+
+    .admin-user span{
+        display:none;
+    }
+
+    .topbar{
+        margin-bottom:18px;
+    }
+
+    .page-title h1{
+        font-size:23px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+    }
+
+    .stat{
+        padding:15px;
+    }
+
+    .stat h2{
+        font-size:22px;
+    }
+
+    .stat-icon{
+        width:38px;
+        height:38px;
+    }
+
+    .card{
+        padding:16px;
+    }
+
+    .bottom-nav{
+        position:fixed;
+        bottom:0;
+        left:0;
+        right:0;
+        height:68px;
+        background:white;
+        border-top:1px solid #e8ebf1;
+        display:flex;
+        justify-content:space-around;
+        align-items:center;
+        z-index:200;
+    }
+
+    .bottom-nav button{
+        border:0;
+        background:none;
+        color:#8992a2;
+        font-size:10px;
+    }
+
+    .bottom-nav button div{
+        font-size:20px;
+        margin-bottom:3px;
+    }
+
+    .bottom-nav button.active{
+        color:#8b5cf6;
+        font-weight:bold;
+    }
+
+    .order{
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .status{
+        white-space:nowrap;
+    }
+}
+
+@media(min-width:701px){
+    .bottom-nav{
+        display:none;
+    }
+}
+
+/* MODAL */
+.modal-bg{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    z-index:500;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal-bg.show{
+    display:flex;
+}
+
+.modal{
+    background:white;
+    width:100%;
+    max-width:520px;
+    border-radius:22px;
+    padding:25px;
+    max-height:90vh;
+    overflow:auto;
+}
+
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.close{
+    border:0;
+    background:#f1f3f7;
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    cursor:pointer;
+}
+
+.input{
+    margin-bottom:14px;
+}
+
+.input label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.input input,
+.input select{
+    width:100%;
+    padding:12px;
+    border:1px solid #dfe3eb;
+    border-radius:10px;
+    outline:none;
+}
+
+.modal-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.cancel{
+    background:#eef0f4;
+    color:#333;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+    <div class="logo">
+        BAKS<span>ANA</span>
+    </div>
+
+    <div class="menu">
+        <button class="active" onclick="showPage('dashboard',this)">📊 &nbsp; Genel Bakış</button>
+        <button onclick="showPage('orders',this)">📦 &nbsp; Siparişler</button>
+        <button onclick="showPage('businesses',this)">🏪 &nbsp; İşletmeler</button>
+        <button onclick="showPage('sites',this)">🏢 &nbsp; Siteler</button>
+        <button onclick="showPage('finance',this)">💰 &nbsp; Finans</button>
+        <button onclick="showPage('reports',this)">📈 &nbsp; Raporlar</button>
+        <button onclick="showPage('settings',this)">⚙️ &nbsp; Ayarlar</button>
+    </div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            BAKS<span>ANA</span>
+        </div>
+
+        <div class="avatar">A</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active">
+
+        <div class="topbar">
+
+            <div class="page-title">
+                <h1>Genel Bakış 👋</h1>
+                <p>BAKSANA sistemine hoş geldin.</p>
+            </div>
+
+            <div class="admin-user">
+                <div class="avatar">A</div>
+                <span>Admin</span>
+            </div>
+
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>Toplam Sipariş</span>
+                    <div class="stat-icon purple">📦</div>
+                </div>
+                <h2>248</h2>
+                <p>Bu ay +18%</p>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>Aktif İşletme</span>
+                    <div class="stat-icon blue">🏪</div>
+                </div>
+                <h2>14</h2>
+                <p>3 yeni işletme</p>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>Aktif Site</span>
+                    <div class="stat-icon green">🏢</div>
+                </div>
+                <h2>7</h2>
+                <p>Toplam 1.284 daire</p>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>Toplam Ciro</span>
+                    <div class="stat-icon orange">💰</div>
+                </div>
+                <h2>86.420₺</h2>
+                <p>Pilot dönem %0 komisyon</p>
+            </div>
+
+        </div>
+
+        <div class="grid">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h3>Son Siparişler</h3>
+                    <button class="btn" onclick="showPage('orders')">
+                        Tümünü Gör
+                    </button>
+                </div>
+
+                <div class="order">
+
+                    <div class="order-left">
+                        <div class="order-icon">🧹</div>
+
+                        <div class="order-info">
+                            <strong>BK-1029</strong>
+                            <small>Ev Temizliği • Nova Residence</small>
+                        </div>
+                    </div>
+
+                    <span class="status waiting">Bekliyor</span>
+
+                </div>
+
+                <div class="order">
+
+                    <div class="order-left">
+                        <div class="order-icon">🚗</div>
+
+                        <div class="order-info">
+                            <strong>BK-1028</strong>
+                            <small>Araç Yıkama • Park Vadi</small>
+                        </div>
+                    </div>
+
+                    <span class="status accepted">Kabul Edildi</span>
+
+                </div>
+
+                <div class="order">
+
+                    <div class="order-left">
+                        <div class="order-icon">🔧</div>
+
+                        <div class="order-info">
+                            <strong>BK-1027</strong>
+                            <small>Teknik Servis • Nova Residence</small>
+                        </div>
+                    </div>
+
+                    <span class="status completed">Tamamlandı</span>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h3>Hızlı İşlemler</h3>
+                </div>
+
+                <div class="quick">
+
+                    <button onclick="openModal('businessModal')">
+                        🏪
+                        <b>İşletme Ekle</b>
+                        <small>Yeni işletme oluştur</small>
+                    </button>
+
+                    <button onclick="openModal('siteModal')">
+                        🏢
+                        <b>Site Ekle</b>
+                        <small>Yeni site oluştur</small>
+                    </button>
+
+                    <button onclick="showPage('orders')">
+                        📦
+                        <b>Siparişler</b>
+                        <small>Siparişleri yönet</small>
+                    </button>
+
+                    <button onclick="showPage('finance')">
+                        💰
+                        <b>Finans</b>
+                        <small>Gelirleri incele</small>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ORDERS -->
+    <section id="orders" class="page">
+
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Siparişler</h1>
+                <p>Sistemdeki tüm siparişleri yönet.</p>
+            </div>
+        </div>
+
+        <div class="card table-card">
+
+            <div class="card-header">
+                <h3>Tüm Siparişler</h3>
+
+                <select class="action">
+                    <option>Tüm Durumlar</option>
+                    <option>Bekliyor</option>
+                    <option>Kabul Edildi</option>
+                    <option>Tamamlandı</option>
+                    <option>Reddedildi</option>
+                </select>
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Sipariş</th>
+                            <th>Hizmet</th>
+                            <th>Site</th>
+                            <th>İşletme</th>
+                            <th>Durum</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><b>BK-1029</b></td>
+                            <td>🧹 Ev Temizliği</td>
+                            <td>Nova Residence</td>
+                            <td>Temiz Ev</td>
+                            <td><span class="status waiting">Bekliyor</span></td>
+                            <td><button class="action" onclick="showOrder('BK-1029')">Görüntüle</button></td>
+                        </tr>
+
+                        <tr>
+                            <td><b>BK-1028</b></td>
+                            <td>🚗 Araç Yıkama</td>
+                            <td>Park Vadi</td>
+                            <td>Nilüfer Oto</td>
+                            <td><span class="status accepted">Kabul Edildi</span></td>
+                            <td><button class="action" onclick="showOrder('BK-1028')">Görüntüle</button></td>
+                        </tr>
+
+                        <tr>
+                            <td><b>BK-1027</b></td>
+                            <td>🔧 Teknik Servis</td>
+                            <td>Nova Residence</td>
+                            <td>Bursa Teknik</td>
+                            <td><span class="status completed">Tamamlandı</span></td>
+                            <td><button class="action" onclick="showOrder('BK-1027')">Görüntüle</button></td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- BUSINESSES -->
+    <section id="businesses" class="page">
+
+        <div class="topbar">
+
+            <div class="page-title">
+                <h1>İşletmeler</h1>
+                <p>BAKSANA'ya bağlı işletmeleri yönet.</p>
+            </div>
+
+            <button class="btn" onclick="openModal('businessModal')">
+                + İşletme Ekle
+            </button>
+
+        </div>
+
+        <div class="card table-card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>İşletme</th>
+                            <th>Hizmet</th>
+                            <th>Sipariş</th>
+                            <th>Durum</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><b>Temiz Ev Hizmetleri</b></td>
+                            <td>🧹 Temizlik</td>
+                            <td>86</td>
+                            <td><span class="status completed">Aktif</span></td>
+                            <td><button class="action">Yönet</button></td>
+                        </tr>
+
+                        <tr>
+                            <td><b>Bursa Teknik</b></td>
+                            <td>🔧 Teknik Servis</td>
+                            <td>54</td>
+                            <td><span class="status completed">Aktif</span></td>
+                            <td><button class="action">Yönet</button></td>
+                        </tr>
+
+                        <tr>
+                            <td><b>Nilüfer Oto</b></td>
+                            <td>🚗 Oto Yıkama</td>
+                            <td>108</td>
+                            <td><span class="status completed">Aktif</span></td>
+                            <td><button class="action">Yönet</button></td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SITES -->
+    <section id="sites" class="page">
+
+        <div class="topbar">
+
+            <div class="page-title">
+                <h1>Siteler</h1>
+                <p>BAKSANA sistemindeki siteleri yönet.</p>
+            </div>
+
+            <button class="btn" onclick="openModal('siteModal')">
+                + Site Ekle
+            </button>
+
+        </div>
+
+        <div class="card table-card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th>Daire</th>
+                            <th>Sipariş</th>
+                            <th>QR</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><b>Nova Residence</b></td>
+                            <td>240</td>
+                            <td>142</td>
+                            <td><button class="action">QR Gör</button></td>
+                            <td><span class="status completed">Aktif</span></td>
+                        </tr>
+
+                        <tr>
+                            <td><b>Park Vadi</b></td>
+                            <td>180</td>
+                            <td>96</td>
+                            <td><button class="action">QR Gör</button></td>
+                            <td><span class="status completed">Aktif</span></td>
+                        </tr>
+
+                        <tr>
+                            <td><b>Green Life</b></td>
+                            <td>320</td>
+                            <td>10</td>
+                            <td><button class="action">QR Gör</button></td>
+                            <td><span class="status completed">Aktif</span></td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FINANCE -->
+    <section id="finance" class="page">
+
+        <div class="topbar">
+
+            <div class="page-title">
+                <h1>Finans</h1>
+                <p>BAKSANA finansal özet.</p>
+            </div>
+
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>Toplam Ciro</span>
+                    <div class="stat-icon green">💰</div>
+                </div>
+                <h2>86.420₺</h2>
+                <p>Bu ay</p>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>BAKSANA Komisyon</span>
+                    <div class="stat-icon purple">📊</div>
+                </div>
+                <h2>0₺</h2>
+                <p>Pilot dönem %0</p>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <span>İşletmelere Ödeme</span>
+                    <div class="stat-icon blue">🏪</div>
+                </div>
+                <h2>86.420₺</h2>
+                <p>Toplam</p>
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>💡 Pilot Dönem</h3>
+
+            <p style="margin-top:12px;color:#737d8e;line-height:1.6;">
+                İlk 1–2 aylık pilot süreçte BAKSANA işletmelerden komisyon almıyor.
+                Gerçek sipariş hacmi ve işletme performansı ölçüldükten sonra
+                komisyon modeli buradan yönetilebilir.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- REPORTS -->
+    <section id="reports" class="page">
+
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Raporlar</h1>
+                <p>BAKSANA performansını incele.</p>
+            </div>
+        </div>
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>📦 Sipariş Performansı</h3>
+                <h2 style="font-size:35px;margin-top:20px;">248</h2>
+                <p style="color:#7b8495;margin-top:5px;">
+                    Bu ay toplam sipariş
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>⭐ Ortalama Memnuniyet</h3>
+                <h2 style="font-size:35px;margin-top:20px;">4.8 / 5</h2>
+                <p style="color:#7b8495;margin-top:5px;">
+                    Müşteri değerlendirmeleri
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SETTINGS -->
+    <section id="settings" class="page">
+
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Ayarlar</h1>
+                <p>BAKSANA sistem ayarları.</p>
+            </div>
+        </div>
+
+        <div class="card">
+
+            <h3>👑 Admin Hesabı</h3>
+
+            <div style="margin-top:20px;max-width:500px;">
+
+                <div class="input">
+                    <label>Admin Adı</label>
+                    <input value="BAKSANA Admin">
+                </div>
+
+                <div class="input">
+                    <label>E-posta</label>
+                    <input value="admin@baksana.com">
+                </div>
+
+                <button class="btn">
+                    Değişiklikleri Kaydet
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- MOBILE NAV -->
+<nav class="bottom-nav">
+
+    <button class="active" onclick="mobileNav('dashboard',this)">
+        <div>📊</div>
+        Ana Sayfa
+    </button>
+
+    <button onclick="mobileNav('orders',this)">
+        <div>📦</div>
+        Sipariş
+    </button>
+
+    <button onclick="mobileNav('businesses',this)">
+        <div>🏪</div>
+        İşletme
+    </button>
+
+    <button onclick="mobileNav('sites',this)">
+        <div>🏢</div>
+        Siteler
+    </button>
+
+    <button onclick="mobileNav('finance',this)">
+        <div>💰</div>
+        Finans
+    </button>
+
+</nav>
+
+
+<!-- BUSINESS MODAL -->
+<div class="modal-bg" id="businessModal">
+
+    <div class="modal">
+
+        <div class="modal-head">
+
+            <h2>Yeni İşletme</h2>
+
+            <button class="close" onclick="closeModal('businessModal')">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="input">
+            <label>İşletme Adı</label>
+            <input placeholder="Örn. Temiz Ev Hizmetleri">
+        </div>
+
+        <div class="input">
+            <label>Kullanıcı Adı</label>
+            <input placeholder="Örn. temizev">
+        </div>
+
+        <div class="input">
+            <label>Telefon</label>
+            <input placeholder="05xx xxx xx xx">
+        </div>
+
+        <div class="input">
+            <label>Hizmet</label>
+            <select>
+                <option>Ev Temizliği</option>
+                <option>Teknik Servis</option>
+                <option>Araç Yıkama</option>
+                <option>Koltuk Yıkama</option>
+            </select>
+        </div>
+
+        <div class="modal-buttons">
+
+            <button class="btn" onclick="saveBusiness()">
+                İşletmeyi Oluştur
+            </button>
+
+            <button class="btn cancel" onclick="closeModal('businessModal')">
+                Vazgeç
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SITE MODAL -->
+<div class="modal-bg" id="siteModal">
+
+    <div class="modal">
+
+        <div class="modal-head">
+
+            <h2>Yeni Site</h2>
+
+            <button class="close" onclick="closeModal('siteModal')">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="input">
+            <label>Site Adı</label>
+            <input placeholder="Örn. Nova Residence">
+        </div>
+
+        <div class="input">
+            <label>Daire Sayısı</label>
+            <input type="number" placeholder="240">
+        </div>
+
+        <div class="input">
+            <label>Site Kodu</label>
+            <input placeholder="nova">
+        </div>
+
+        <div class="modal-buttons">
+
+            <button class="btn" onclick="saveSite()">
+                Siteyi Oluştur
+            </button>
+
+            <button class="btn cancel" onclick="closeModal('siteModal')">
+                Vazgeç
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ORDER MODAL -->
+<div class="modal-bg" id="orderModal">
+
+    <div class="modal">
+
+        <div class="modal-head">
+
+            <h2 id="orderTitle">Sipariş</h2>
+
+            <button class="close" onclick="closeModal('orderModal')">
+                ✕
+            </button>
+
+        </div>
+
+        <div style="line-height:2;color:#596273;">
+
+            <p><b>Hizmet:</b> Ev Temizliği</p>
+            <p><b>Site:</b> Nova Residence</p>
+            <p><b>Blok:</b> A Blok</p>
+            <p><b>Daire:</b> 14</p>
+            <p><b>Tarih:</b> 3 Ekim 2026</p>
+            <p><b>Saat:</b> 15:00</p>
+            <p><b>İşletme:</b> Temiz Ev Hizmetleri</p>
+            <p><b>Durum:</b> Bekliyor</p>
+
+        </div>
+
+        <div class="modal-buttons">
+
+            <button class="btn">
+                İşletmeye Ata
+            </button>
+
+            <button class="btn cancel" onclick="closeModal('orderModal')">
+                Kapat
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function showPage(pageId, button){
+
+    document.querySelectorAll(".page").forEach(page=>{
+        page.classList.remove("active");
+    });
+
+    document.getElementById(pageId).classList.add("active");
+
+    document.querySelectorAll(".menu button").forEach(btn=>{
+        btn.classList.remove("active");
+    });
+
+    if(button){
+        button.classList.add("active");
+    }
+
+    window.scrollTo(0,0);
+}
+
+
+function mobileNav(pageId,button){
+
+    showPage(pageId);
+
+    document.querySelectorAll(".bottom-nav button").forEach(btn=>{
+        btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+}
+
+
+function openModal(id){
+
+    document.getElementById(id).classList.add("show");
+
+}
+
+
+function closeModal(id){
+
+    document.getElementById(id).classList.remove("show");
+
+}
+
+
+function saveBusiness(){
+
+    alert("Demo: İşletme oluşturuldu.");
+
+    closeModal("businessModal");
+
+}
+
+
+function saveSite(){
+
+    alert("Demo: Site oluşturuldu.");
+
+    closeModal("siteModal");
+
+}
+
+
+function showOrder(order){
+
+    document.getElementById("orderTitle").innerText =
+        order + " Sipariş Detayı";
+
+    openModal("orderModal");
+
+}
+
+</script>
+
+</body>
+</html>
