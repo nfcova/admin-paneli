@@ -2,1330 +2,5712 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#7657e8">
 <title>BAKSANA Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:Inter,Arial,sans-serif;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --p:#7657e8;--p2:#6242d8;--bg:#f5f7fb;--card:#fff;--text:#172033;
+ --muted:#7b8495;--bd:#e8ebf1;--green:#15803d;--red:#b91c1c;
+ --blue:#1d4ed8;--orange:#a16207;--dark:#111827
+}
+body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+/* AUTH */
+.auth{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top right,#eee8ff,transparent 35%),
+    #f7f8fc
 }
 
-body{
-    background:#f5f7fb;
-    color:#172033;
+.auth-card{
+  width:min(430px,100%);
+  background:#fff;
+  border:1px solid var(--bd);
+  border-radius:28px;
+  padding:34px 30px;
+  box-shadow:0 24px 70px rgba(35,25,80,.1)
 }
 
-/* SIDEBAR */
+.auth-logo{
+  font-size:30px;
+  font-weight:900;
+  text-align:center;
+  margin-bottom:26px
+}
+
+.auth-logo span{
+  color:var(--p)
+}
+
+.auth h1{
+  text-align:center;
+  font-size:25px;
+  margin-bottom:7px
+}
+
+.auth p{
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:25px
+}
+
+.field{
+  margin-bottom:14px
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:7px
+}
+
+.field input,
+.field select{
+  width:100%;
+  height:48px;
+  border:1px solid var(--bd);
+  border-radius:12px;
+  padding:0 13px;
+  outline:none;
+  background:#fff
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:var(--p);
+  box-shadow:0 0 0 4px #7657e812
+}
+
+.auth-btn{
+  width:100%;
+  height:52px;
+  border:0;
+  border-radius:13px;
+  background:linear-gradient(135deg,#8065ef,#6242d8);
+  color:#fff;
+  font-weight:800
+}
+
+.auth-btn:disabled{
+  opacity:.65;
+  cursor:not-allowed
+}
+
+.auth-error{
+  display:none;
+  margin-bottom:14px;
+  background:#fff0f0;
+  color:var(--red);
+  border:1px solid #ffd7d7;
+  padding:11px;
+  border-radius:11px;
+  font-size:13px;
+  text-align:center
+}
+
+
+/* LAYOUT */
+
 .sidebar{
-    position:fixed;
-    left:0;
-    top:0;
-    bottom:0;
-    width:250px;
-    background:#111827;
-    color:white;
-    padding:25px 16px;
-    z-index:100;
+  position:fixed;
+  inset:0 auto 0 0;
+  width:250px;
+  background:var(--dark);
+  color:#fff;
+  padding:24px 15px;
+  z-index:100
 }
 
 .logo{
-    font-size:27px;
-    font-weight:900;
-    padding:0 12px 30px;
+  font-size:27px;
+  font-weight:900;
+  padding:0 12px 30px
 }
 
 .logo span{
-    color:#8b5cf6;
+  color:#9a7bff
 }
 
 .menu{
-    display:flex;
-    flex-direction:column;
-    gap:7px;
+  display:flex;
+  flex-direction:column;
+  gap:6px
 }
 
 .menu button{
-    border:0;
-    background:transparent;
-    color:#aeb7c7;
-    padding:14px;
-    border-radius:12px;
-    text-align:left;
-    font-size:15px;
-    cursor:pointer;
-    transition:.2s;
+  border:0;
+  background:none;
+  color:#aeb7c7;
+  padding:13px;
+  border-radius:12px;
+  text-align:left;
+  font-size:14px;
+  font-weight:700
 }
 
 .menu button:hover,
 .menu button.active{
-    background:#252d3d;
-    color:white;
+  background:#252d3d;
+  color:#fff
 }
 
 .menu button.active{
-    border-left:4px solid #8b5cf6;
+  border-left:4px solid #8b5cf6
 }
 
-/* MAIN */
+.logout{
+  position:absolute;
+  left:15px;
+  right:15px;
+  bottom:20px
+}
+
+.panel{
+  display:none
+}
+
 .main{
-    margin-left:250px;
-    padding:25px;
+  margin-left:250px;
+  padding:24px;
+  min-height:100vh
 }
 
 .topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:22px
 }
 
 .page-title h1{
-    font-size:27px;
+  font-size:27px
 }
 
 .page-title p{
-    color:#7b8495;
-    margin-top:5px;
+  color:var(--muted);
+  margin-top:5px;
+  font-size:14px
 }
 
 .admin-user{
-    background:white;
-    padding:10px 15px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    box-shadow:0 5px 20px rgba(0,0,0,.04);
+  background:#fff;
+  padding:8px 12px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 5px 20px rgba(0,0,0,.04)
 }
 
 .avatar{
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    background:#8b5cf6;
-    color:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:bold;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:var(--p);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-weight:800
 }
 
-/* STATS */
-.stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
-    margin-bottom:22px;
-}
-
-.stat{
-    background:white;
-    border-radius:18px;
-    padding:20px;
-    box-shadow:0 5px 20px rgba(0,0,0,.04);
-}
-
-.stat-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.stat-icon{
-    width:45px;
-    height:45px;
-    border-radius:13px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:21px;
-}
-
-.purple{background:#ede9fe;}
-.blue{background:#dbeafe;}
-.green{background:#dcfce7;}
-.orange{background:#ffedd5;}
-
-.stat h2{
-    margin-top:17px;
-    font-size:27px;
-}
-
-.stat p{
-    color:#7c8595;
-    font-size:13px;
-    margin-top:4px;
-}
-
-/* CONTENT */
-.grid{
-    display:grid;
-    grid-template-columns:1.5fr 1fr;
-    gap:20px;
-}
-
-.card{
-    background:white;
-    border-radius:18px;
-    padding:20px;
-    box-shadow:0 5px 20px rgba(0,0,0,.04);
-}
-
-.card-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:18px;
-}
-
-.card-header h3{
-    font-size:18px;
-}
-
-.btn{
-    border:0;
-    background:#8b5cf6;
-    color:white;
-    padding:10px 15px;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:600;
-}
-
-.btn:hover{
-    opacity:.9;
-}
-
-/* ORDERS */
-.order{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px 0;
-    border-bottom:1px solid #edf0f5;
-}
-
-.order:last-child{
-    border-bottom:0;
-}
-
-.order-left{
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-
-.order-icon{
-    width:43px;
-    height:43px;
-    border-radius:12px;
-    background:#f3f4f6;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-}
-
-.order-info strong{
-    display:block;
-    font-size:14px;
-}
-
-.order-info small{
-    color:#87909f;
-}
-
-.status{
-    padding:6px 10px;
-    border-radius:20px;
-    font-size:11px;
-    font-weight:700;
-}
-
-.waiting{
-    background:#fef3c7;
-    color:#a16207;
-}
-
-.accepted{
-    background:#dbeafe;
-    color:#1d4ed8;
-}
-
-.completed{
-    background:#dcfce7;
-    color:#15803d;
-}
-
-.rejected{
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-/* QUICK */
-.quick{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.quick button{
-    padding:17px 10px;
-    background:#f8f9fc;
-    border:1px solid #edf0f5;
-    border-radius:14px;
-    cursor:pointer;
-    text-align:left;
-}
-
-.quick button:hover{
-    background:#f0ecff;
-}
-
-.quick b{
-    display:block;
-    margin-top:7px;
-}
-
-/* TABLE */
-.table-card{
-    margin-top:20px;
-    overflow:hidden;
-}
-
-.table-wrap{
-    overflow-x:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    padding:15px;
-    text-align:left;
-    border-bottom:1px solid #edf0f5;
-    font-size:14px;
-}
-
-th{
-    color:#7c8595;
-    font-size:12px;
-}
-
-.action{
-    border:0;
-    background:#f3f4f6;
-    padding:7px 10px;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-/* PAGES */
 .page{
-    display:none;
+  display:none
 }
 
 .page.active{
-    display:block;
+  display:block
 }
 
+
+/* COMMON */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-bottom:20px
+}
+
+.stat{
+  background:#fff;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.04)
+}
+
+.stat-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  color:#5e6675;
+  gap:10px
+}
+
+.stat-icon{
+  width:43px;
+  height:43px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  font-size:20px
+}
+
+.purple{
+  background:#ede9fe
+}
+
+.blue{
+  background:#dbeafe
+}
+
+.green{
+  background:#dcfce7
+}
+
+.orange{
+  background:#ffedd5
+}
+
+.stat h2{
+  margin-top:14px;
+  font-size:26px
+}
+
+.stat p{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.5fr 1fr;
+  gap:18px
+}
+
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 5px 20px rgba(0,0,0,.04)
+}
+
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px
+}
+
+.card-header h3{
+  font-size:18px
+}
+
+.btn{
+  border:0;
+  background:var(--p);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:700
+}
+
+.btn:hover{
+  filter:brightness(.97)
+}
+
+.btn.secondary{
+  background:#eef0f4;
+  color:#303744
+}
+
+.btn.danger{
+  background:#fee2e2;
+  color:var(--red)
+}
+
+.btn.small{
+  padding:7px 10px;
+  font-size:12px
+}
+
+.muted{
+  color:var(--muted)
+}
+
+.table-card{
+  margin-top:18px;
+  overflow:hidden
+}
+
+.table-wrap{
+  overflow-x:auto
+}
+
+table{
+  width:100%;
+  border-collapse:collapse
+}
+
+th,
+td{
+  padding:13px 12px;
+  text-align:left;
+  border-bottom:1px solid #edf0f5;
+  font-size:13px;
+  white-space:nowrap
+}
+
+th{
+  color:#7c8595;
+  font-size:11px
+}
+
+tbody tr:hover{
+  background:#fafbfe
+}
+
+.action{
+  border:0;
+  background:#f2f4f8;
+  padding:7px 9px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700
+}
+
+.action:hover{
+  background:#ebe7ff;
+  color:var(--p2)
+}
+
+.status{
+  padding:6px 9px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:800;
+  display:inline-block
+}
+
+.waiting{
+  background:#fef3c7;
+  color:#a16207
+}
+
+.accepted{
+  background:#dbeafe;
+  color:#1d4ed8
+}
+
+.progress{
+  background:#ede9fe;
+  color:#6242d8
+}
+
+.completed{
+  background:#dcfce7;
+  color:#15803d
+}
+
+.rejected{
+  background:#fee2e2;
+  color:#b91c1c
+}
+
+.order-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid #edf0f5
+}
+
+.order-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0
+}
+
+.order-icon{
+  width:43px;
+  height:43px;
+  border-radius:12px;
+  background:#f3f4f6;
+  display:grid;
+  place-items:center;
+  font-size:19px
+}
+
+.order-info{
+  min-width:0
+}
+
+.order-info strong{
+  display:block;
+  font-size:13px
+}
+
+.order-info small{
+  display:block;
+  color:#87909f;
+  margin-top:3px;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+
+.quick{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+
+.quick button{
+  padding:15px 11px;
+  background:#f8f9fc;
+  border:1px solid #edf0f5;
+  border-radius:14px;
+  text-align:left
+}
+
+.quick button:hover{
+  background:#f0ecff
+}
+
+.quick b{
+  display:block;
+  margin-top:6px;
+  font-size:13px
+}
+
+.quick small{
+  color:#87909f;
+  display:block;
+  margin-top:3px
+}
+
+.kpi-note{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6
+}
+
+.toolbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap
+}
+
+.toolbar input,
+.toolbar select{
+  height:40px;
+  border:1px solid var(--bd);
+  border-radius:10px;
+  padding:0 10px;
+  background:#fff;
+  outline:none
+}
+
+
+/* MODAL */
+
+.modal-bg{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.55);
+  z-index:500;
+  align-items:center;
+  justify-content:center;
+  padding:20px
+}
+
+.modal-bg.show{
+  display:flex
+}
+
+.modal{
+  background:#fff;
+  width:min(560px,100%);
+  border-radius:22px;
+  padding:22px;
+  max-height:90vh;
+  overflow:auto
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px
+}
+
+.modal-head h2{
+  font-size:20px
+}
+
+.close{
+  border:0;
+  background:#f1f3f7;
+  width:35px;
+  height:35px;
+  border-radius:50%
+}
+
+.modal-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:18px
+}
+
+.modal-buttons .btn{
+  flex:1
+}
+
+
 /* MOBILE */
-.mobile-header{
-    display:none;
+
+.mobile-header,
+.bottom-nav{
+  display:none
 }
 
 @media(max-width:1000px){
-    .stats{
-        grid-template-columns:repeat(2,1fr);
-    }
 
-    .grid{
-        grid-template-columns:1fr;
-    }
+  .stats{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .grid{
+    grid-template-columns:1fr
+  }
 }
 
 @media(max-width:700px){
 
-    .sidebar{
-        display:none;
-    }
+  .sidebar{
+    display:none
+  }
 
-    .main{
-        margin-left:0;
-        padding:15px;
-        padding-bottom:85px;
-    }
+  .main{
+    margin-left:0;
+    padding:15px 15px 85px
+  }
 
-    .mobile-header{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:20px;
-    }
-
-    .mobile-logo{
-        font-size:24px;
-        font-weight:900;
-    }
-
-    .mobile-logo span{
-        color:#8b5cf6;
-    }
-
-    .admin-user{
-        padding:7px;
-    }
-
-    .admin-user span{
-        display:none;
-    }
-
-    .topbar{
-        margin-bottom:18px;
-    }
-
-    .page-title h1{
-        font-size:23px;
-    }
-
-    .stats{
-        grid-template-columns:1fr 1fr;
-        gap:10px;
-    }
-
-    .stat{
-        padding:15px;
-    }
-
-    .stat h2{
-        font-size:22px;
-    }
-
-    .stat-icon{
-        width:38px;
-        height:38px;
-    }
-
-    .card{
-        padding:16px;
-    }
-
-    .bottom-nav{
-        position:fixed;
-        bottom:0;
-        left:0;
-        right:0;
-        height:68px;
-        background:white;
-        border-top:1px solid #e8ebf1;
-        display:flex;
-        justify-content:space-around;
-        align-items:center;
-        z-index:200;
-    }
-
-    .bottom-nav button{
-        border:0;
-        background:none;
-        color:#8992a2;
-        font-size:10px;
-    }
-
-    .bottom-nav button div{
-        font-size:20px;
-        margin-bottom:3px;
-    }
-
-    .bottom-nav button.active{
-        color:#8b5cf6;
-        font-weight:bold;
-    }
-
-    .order{
-        align-items:flex-start;
-        gap:10px;
-    }
-
-    .status{
-        white-space:nowrap;
-    }
-}
-
-@media(min-width:701px){
-    .bottom-nav{
-        display:none;
-    }
-}
-
-/* MODAL */
-.modal-bg{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,.55);
-    z-index:500;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-}
-
-.modal-bg.show{
-    display:flex;
-}
-
-.modal{
-    background:white;
-    width:100%;
-    max-width:520px;
-    border-radius:22px;
-    padding:25px;
-    max-height:90vh;
-    overflow:auto;
-}
-
-.modal-head{
+  .mobile-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:20px;
-}
+    margin-bottom:16px
+  }
 
-.close{
-    border:0;
-    background:#f1f3f7;
-    width:35px;
-    height:35px;
-    border-radius:50%;
-    cursor:pointer;
-}
+  .mobile-logo{
+    font-size:24px;
+    font-weight:900
+  }
 
-.input{
-    margin-bottom:14px;
-}
+  .mobile-logo span{
+    color:var(--p)
+  }
 
-.input label{
-    display:block;
-    font-size:12px;
-    font-weight:bold;
-    margin-bottom:6px;
-}
+  .topbar{
+    margin-bottom:18px
+  }
 
-.input input,
-.input select{
-    width:100%;
-    padding:12px;
-    border:1px solid #dfe3eb;
-    border-radius:10px;
-    outline:none;
-}
+  .page-title h1{
+    font-size:23px
+  }
 
-.modal-buttons{
+  .admin-user{
+    padding:7px
+  }
+
+  .admin-user span{
+    display:none
+  }
+
+  .stats{
+    gap:10px
+  }
+
+  .stat{
+    padding:15px
+  }
+
+  .stat h2{
+    font-size:22px
+  }
+
+  .stat-icon{
+    width:38px;
+    height:38px
+  }
+
+  .card{
+    padding:15px
+  }
+
+  .table-card{
+    padding:10px
+  }
+
+  .quick{
+    grid-template-columns:1fr 1fr
+  }
+
+  .bottom-nav{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:68px;
+    background:#fff;
+    border-top:1px solid var(--bd);
     display:flex;
-    gap:10px;
-    margin-top:20px;
+    justify-content:space-around;
+    align-items:center;
+    z-index:200
+  }
+
+  .bottom-nav button{
+    border:0;
+    background:none;
+    color:#8992a2;
+    font-size:10px;
+    font-weight:700
+  }
+
+  .bottom-nav button div{
+    font-size:20px;
+    margin-bottom:3px
+  }
+
+  .bottom-nav button.active{
+    color:var(--p)
+  }
+
+  .order-row{
+    align-items:flex-start
+  }
+
+  .order-row .status{
+    margin-left:auto
+  }
+
+  .modal{
+    border-radius:20px;
+    padding:18px
+  }
+
+  .toolbar>*{
+    width:100%
+  }
 }
 
-.cancel{
-    background:#eef0f4;
-    color:#333;
+@media(min-width:701px){
+
+  .bottom-nav{
+    display:none
+  }
 }
 </style>
 </head>
 
 <body>
 
+
+<!-- =====================================================
+LOGIN
+===================================================== -->
+
+<section
+class="auth"
+id="loginScreen"
+>
+
+<div class="auth-card">
+
+<div class="auth-logo">
+BAKS<span>ANA</span>
+</div>
+
+<h1>
+Admin Paneli
+</h1>
+
+<p>
+BAKSANA yönetim hesabınızla giriş yapın.
+</p>
+
+
+<div
+class="auth-error"
+id="loginError"
+></div>
+
+
+<div class="field">
+
+<label>
+E-posta
+</label>
+
+<input
+id="loginEmail"
+type="email"
+autocomplete="username"
+placeholder="admin@baksana.com"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Şifre
+</label>
+
+<input
+id="loginPassword"
+type="password"
+autocomplete="current-password"
+placeholder="Şifreniz"
+>
+
+</div>
+
+
+<button
+class="auth-btn"
+id="loginBtn"
+type="button"
+onclick="loginAdmin()"
+>
+GİRİŞ YAP
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+PANEL
+===================================================== -->
+
+<div
+id="panel"
+>
+
+
 <!-- SIDEBAR -->
+
 <aside class="sidebar">
 
-    <div class="logo">
-        BAKS<span>ANA</span>
-    </div>
+<div class="logo">
+BAKS<span>ANA</span>
+</div>
 
-    <div class="menu">
-        <button class="active" onclick="showPage('dashboard',this)">📊 &nbsp; Genel Bakış</button>
-        <button onclick="showPage('orders',this)">📦 &nbsp; Siparişler</button>
-        <button onclick="showPage('businesses',this)">🏪 &nbsp; İşletmeler</button>
-        <button onclick="showPage('sites',this)">🏢 &nbsp; Siteler</button>
-        <button onclick="showPage('finance',this)">💰 &nbsp; Finans</button>
-        <button onclick="showPage('reports',this)">📈 &nbsp; Raporlar</button>
-        <button onclick="showPage('settings',this)">⚙️ &nbsp; Ayarlar</button>
-    </div>
+
+<div class="menu">
+
+<button
+class="active"
+data-page="dashboard"
+onclick="showPage('dashboard',this)"
+>
+📊 &nbsp; Genel Bakış
+</button>
+
+
+<button
+data-page="orders"
+onclick="showPage('orders',this)"
+>
+📦 &nbsp; Siparişler
+</button>
+
+
+<button
+data-page="businesses"
+onclick="showPage('businesses',this)"
+>
+🏪 &nbsp; İşletmeler
+</button>
+
+
+<button
+data-page="sites"
+onclick="showPage('sites',this)"
+>
+🏢 &nbsp; Siteler
+</button>
+
+
+<button
+data-page="finance"
+onclick="showPage('finance',this)"
+>
+💰 &nbsp; Finans
+</button>
+
+
+<button
+data-page="reports"
+onclick="showPage('reports',this)"
+>
+📈 &nbsp; Raporlar
+</button>
+
+
+<button
+data-page="settings"
+onclick="showPage('settings',this)"
+>
+⚙️ &nbsp; Ayarlar
+</button>
+
+
+<button
+onclick="logout()"
+>
+🚪 &nbsp; Çıkış Yap
+</button>
+
+</div>
 
 </aside>
 
+
+
 <!-- MAIN -->
+
 <main class="main">
 
-    <div class="mobile-header">
-        <div class="mobile-logo">
-            BAKS<span>ANA</span>
-        </div>
-
-        <div class="avatar">A</div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="page active">
-
-        <div class="topbar">
 
-            <div class="page-title">
-                <h1>Genel Bakış 👋</h1>
-                <p>BAKSANA sistemine hoş geldin.</p>
-            </div>
-
-            <div class="admin-user">
-                <div class="avatar">A</div>
-                <span>Admin</span>
-            </div>
+<div class="mobile-header">
 
-        </div>
+<div class="mobile-logo">
+BAKS<span>ANA</span>
+</div>
 
-        <div class="stats">
+<div class="avatar">
+A
+</div>
 
-            <div class="stat">
-                <div class="stat-top">
-                    <span>Toplam Sipariş</span>
-                    <div class="stat-icon purple">📦</div>
-                </div>
-                <h2>248</h2>
-                <p>Bu ay +18%</p>
-            </div>
+</div>
 
-            <div class="stat">
-                <div class="stat-top">
-                    <span>Aktif İşletme</span>
-                    <div class="stat-icon blue">🏪</div>
-                </div>
-                <h2>14</h2>
-                <p>3 yeni işletme</p>
-            </div>
 
-            <div class="stat">
-                <div class="stat-top">
-                    <span>Aktif Site</span>
-                    <div class="stat-icon green">🏢</div>
-                </div>
-                <h2>7</h2>
-                <p>Toplam 1.284 daire</p>
-            </div>
-
-            <div class="stat">
-                <div class="stat-top">
-                    <span>Toplam Ciro</span>
-                    <div class="stat-icon orange">💰</div>
-                </div>
-                <h2>86.420₺</h2>
-                <p>Pilot dönem %0 komisyon</p>
-            </div>
 
-        </div>
+<!-- =====================================================
+DASHBOARD
+===================================================== -->
 
-        <div class="grid">
+<section
+id="dashboard"
+class="page active"
+>
 
-            <div class="card">
+<div class="topbar">
 
-                <div class="card-header">
-                    <h3>Son Siparişler</h3>
-                    <button class="btn" onclick="showPage('orders')">
-                        Tümünü Gör
-                    </button>
-                </div>
+<div class="page-title">
 
-                <div class="order">
+<h1>
+Genel Bakış 👋
+</h1>
 
-                    <div class="order-left">
-                        <div class="order-icon">🧹</div>
+<p>
+BAKSANA sisteminin gerçek zamanlı özeti.
+</p>
 
-                        <div class="order-info">
-                            <strong>BK-1029</strong>
-                            <small>Ev Temizliği • Nova Residence</small>
-                        </div>
-                    </div>
+</div>
 
-                    <span class="status waiting">Bekliyor</span>
 
-                </div>
+<div class="admin-user">
 
-                <div class="order">
+<div class="avatar">
+A
+</div>
 
-                    <div class="order-left">
-                        <div class="order-icon">🚗</div>
+<span id="adminEmail">
+Admin
+</span>
 
-                        <div class="order-info">
-                            <strong>BK-1028</strong>
-                            <small>Araç Yıkama • Park Vadi</small>
-                        </div>
-                    </div>
+</div>
 
-                    <span class="status accepted">Kabul Edildi</span>
+</div>
 
-                </div>
 
-                <div class="order">
 
-                    <div class="order-left">
-                        <div class="order-icon">🔧</div>
+<div class="stats">
 
-                        <div class="order-info">
-                            <strong>BK-1027</strong>
-                            <small>Teknik Servis • Nova Residence</small>
-                        </div>
-                    </div>
 
-                    <span class="status completed">Tamamlandı</span>
+<div class="stat">
 
-                </div>
+<div class="stat-top">
 
-            </div>
+<span>
+Toplam Sipariş
+</span>
 
-            <div class="card">
+<div class="stat-icon purple">
+📦
+</div>
 
-                <div class="card-header">
-                    <h3>Hızlı İşlemler</h3>
-                </div>
+</div>
 
-                <div class="quick">
-
-                    <button onclick="openModal('businessModal')">
-                        🏪
-                        <b>İşletme Ekle</b>
-                        <small>Yeni işletme oluştur</small>
-                    </button>
+<h2 id="kpiOrders">
+0
+</h2>
 
-                    <button onclick="openModal('siteModal')">
-                        🏢
-                        <b>Site Ekle</b>
-                        <small>Yeni site oluştur</small>
-                    </button>
+<p id="kpiOrdersHint">
+Sistemdeki tüm siparişler
+</p>
 
-                    <button onclick="showPage('orders')">
-                        📦
-                        <b>Siparişler</b>
-                        <small>Siparişleri yönet</small>
-                    </button>
+</div>
 
-                    <button onclick="showPage('finance')">
-                        💰
-                        <b>Finans</b>
-                        <small>Gelirleri incele</small>
-                    </button>
 
-                </div>
 
-            </div>
+<div class="stat">
 
-        </div>
+<div class="stat-top">
 
-    </section>
+<span>
+Aktif İşletme
+</span>
 
+<div class="stat-icon blue">
+🏪
+</div>
 
-    <!-- ORDERS -->
-    <section id="orders" class="page">
+</div>
 
-        <div class="topbar">
-            <div class="page-title">
-                <h1>Siparişler</h1>
-                <p>Sistemdeki tüm siparişleri yönet.</p>
-            </div>
-        </div>
+<h2 id="kpiBusinesses">
+0
+</h2>
 
-        <div class="card table-card">
+<p>
+Aktif işletmeler
+</p>
 
-            <div class="card-header">
-                <h3>Tüm Siparişler</h3>
+</div>
 
-                <select class="action">
-                    <option>Tüm Durumlar</option>
-                    <option>Bekliyor</option>
-                    <option>Kabul Edildi</option>
-                    <option>Tamamlandı</option>
-                    <option>Reddedildi</option>
-                </select>
-            </div>
 
-            <div class="table-wrap">
 
-                <table>
+<div class="stat">
 
-                    <thead>
-                        <tr>
-                            <th>Sipariş</th>
-                            <th>Hizmet</th>
-                            <th>Site</th>
-                            <th>İşletme</th>
-                            <th>Durum</th>
-                            <th>İşlem</th>
-                        </tr>
-                    </thead>
+<div class="stat-top">
 
-                    <tbody>
+<span>
+Aktif Site
+</span>
 
-                        <tr>
-                            <td><b>BK-1029</b></td>
-                            <td>🧹 Ev Temizliği</td>
-                            <td>Nova Residence</td>
-                            <td>Temiz Ev</td>
-                            <td><span class="status waiting">Bekliyor</span></td>
-                            <td><button class="action" onclick="showOrder('BK-1029')">Görüntüle</button></td>
-                        </tr>
+<div class="stat-icon green">
+🏢
+</div>
 
-                        <tr>
-                            <td><b>BK-1028</b></td>
-                            <td>🚗 Araç Yıkama</td>
-                            <td>Park Vadi</td>
-                            <td>Nilüfer Oto</td>
-                            <td><span class="status accepted">Kabul Edildi</span></td>
-                            <td><button class="action" onclick="showOrder('BK-1028')">Görüntüle</button></td>
-                        </tr>
+</div>
 
-                        <tr>
-                            <td><b>BK-1027</b></td>
-                            <td>🔧 Teknik Servis</td>
-                            <td>Nova Residence</td>
-                            <td>Bursa Teknik</td>
-                            <td><span class="status completed">Tamamlandı</span></td>
-                            <td><button class="action" onclick="showOrder('BK-1027')">Görüntüle</button></td>
-                        </tr>
+<h2 id="kpiSites">
+0
+</h2>
 
-                    </tbody>
+<p>
+Aktif siteler
+</p>
 
-                </table>
+</div>
 
-            </div>
 
-        </div>
 
-    </section>
+<div class="stat">
 
+<div class="stat-top">
 
-    <!-- BUSINESSES -->
-    <section id="businesses" class="page">
+<span>
+Toplam Ciro
+</span>
 
-        <div class="topbar">
+<div class="stat-icon orange">
+💰
+</div>
 
-            <div class="page-title">
-                <h1>İşletmeler</h1>
-                <p>BAKSANA'ya bağlı işletmeleri yönet.</p>
-            </div>
+</div>
 
-            <button class="btn" onclick="openModal('businessModal')">
-                + İşletme Ekle
-            </button>
+<h2 id="kpiRevenue">
+0 ₺
+</h2>
 
-        </div>
+<p>
+Tamamlanan siparişler
+</p>
 
-        <div class="card table-card">
+</div>
 
-            <div class="table-wrap">
+</div>
 
-                <table>
 
-                    <thead>
-                        <tr>
-                            <th>İşletme</th>
-                            <th>Hizmet</th>
-                            <th>Sipariş</th>
-                            <th>Durum</th>
-                            <th>İşlem</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
+<div class="grid">
 
-                        <tr>
-                            <td><b>Temiz Ev Hizmetleri</b></td>
-                            <td>🧹 Temizlik</td>
-                            <td>86</td>
-                            <td><span class="status completed">Aktif</span></td>
-                            <td><button class="action">Yönet</button></td>
-                        </tr>
 
-                        <tr>
-                            <td><b>Bursa Teknik</b></td>
-                            <td>🔧 Teknik Servis</td>
-                            <td>54</td>
-                            <td><span class="status completed">Aktif</span></td>
-                            <td><button class="action">Yönet</button></td>
-                        </tr>
+<div class="card">
 
-                        <tr>
-                            <td><b>Nilüfer Oto</b></td>
-                            <td>🚗 Oto Yıkama</td>
-                            <td>108</td>
-                            <td><span class="status completed">Aktif</span></td>
-                            <td><button class="action">Yönet</button></td>
-                        </tr>
+<div class="card-header">
 
-                    </tbody>
+<h3>
+Son Siparişler
+</h3>
 
-                </table>
+<button
+class="btn small"
+onclick="showPage('orders')"
+>
+Tümünü Gör
+</button>
 
-            </div>
+</div>
 
-        </div>
 
-    </section>
+<div id="recentOrders">
+</div>
 
+</div>
 
-    <!-- SITES -->
-    <section id="sites" class="page">
 
-        <div class="topbar">
 
-            <div class="page-title">
-                <h1>Siteler</h1>
-                <p>BAKSANA sistemindeki siteleri yönet.</p>
-            </div>
+<div class="card">
 
-            <button class="btn" onclick="openModal('siteModal')">
-                + Site Ekle
-            </button>
+<div class="card-header">
 
-        </div>
+<h3>
+Hızlı İşlemler
+</h3>
 
-        <div class="card table-card">
+</div>
 
-            <div class="table-wrap">
 
-                <table>
+<div class="quick">
 
-                    <thead>
-                        <tr>
-                            <th>Site</th>
-                            <th>Daire</th>
-                            <th>Sipariş</th>
-                            <th>QR</th>
-                            <th>Durum</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
+<button
+onclick="openModal('businessModal')"
+>
 
-                        <tr>
-                            <td><b>Nova Residence</b></td>
-                            <td>240</td>
-                            <td>142</td>
-                            <td><button class="action">QR Gör</button></td>
-                            <td><span class="status completed">Aktif</span></td>
-                        </tr>
+🏪
 
-                        <tr>
-                            <td><b>Park Vadi</b></td>
-                            <td>180</td>
-                            <td>96</td>
-                            <td><button class="action">QR Gör</button></td>
-                            <td><span class="status completed">Aktif</span></td>
-                        </tr>
+<b>
+İşletme Ekle
+</b>
 
-                        <tr>
-                            <td><b>Green Life</b></td>
-                            <td>320</td>
-                            <td>10</td>
-                            <td><button class="action">QR Gör</button></td>
-                            <td><span class="status completed">Aktif</span></td>
-                        </tr>
+<small>
+Yeni işletme kaydı
+</small>
 
-                    </tbody>
+</button>
 
-                </table>
 
-            </div>
+<button
+onclick="openModal('siteModal')"
+>
 
-        </div>
+🏢
 
-    </section>
+<b>
+Site Ekle
+</b>
 
+<small>
+Yeni site oluştur
+</small>
 
-    <!-- FINANCE -->
-    <section id="finance" class="page">
+</button>
 
-        <div class="topbar">
 
-            <div class="page-title">
-                <h1>Finans</h1>
-                <p>BAKSANA finansal özet.</p>
-            </div>
+<button
+onclick="showPage('orders')"
+>
 
-        </div>
+📦
 
-        <div class="stats">
+<b>
+Siparişler
+</b>
 
-            <div class="stat">
-                <div class="stat-top">
-                    <span>Toplam Ciro</span>
-                    <div class="stat-icon green">💰</div>
-                </div>
-                <h2>86.420₺</h2>
-                <p>Bu ay</p>
-            </div>
+<small>
+Siparişleri yönet
+</small>
 
-            <div class="stat">
-                <div class="stat-top">
-                    <span>BAKSANA Komisyon</span>
-                    <div class="stat-icon purple">📊</div>
-                </div>
-                <h2>0₺</h2>
-                <p>Pilot dönem %0</p>
-            </div>
+</button>
 
-            <div class="stat">
-                <div class="stat-top">
-                    <span>İşletmelere Ödeme</span>
-                    <div class="stat-icon blue">🏪</div>
-                </div>
-                <h2>86.420₺</h2>
-                <p>Toplam</p>
-            </div>
 
-        </div>
+<button
+onclick="showPage('finance')"
+>
 
-        <div class="card">
+💰
 
-            <h3>💡 Pilot Dönem</h3>
+<b>
+Finans
+</b>
 
-            <p style="margin-top:12px;color:#737d8e;line-height:1.6;">
-                İlk 1–2 aylık pilot süreçte BAKSANA işletmelerden komisyon almıyor.
-                Gerçek sipariş hacmi ve işletme performansı ölçüldükten sonra
-                komisyon modeli buradan yönetilebilir.
-            </p>
+<small>
+Ciroyu incele
+</small>
 
-        </div>
+</button>
 
-    </section>
 
+</div>
 
-    <!-- REPORTS -->
-    <section id="reports" class="page">
+</div>
 
-        <div class="topbar">
-            <div class="page-title">
-                <h1>Raporlar</h1>
-                <p>BAKSANA performansını incele.</p>
-            </div>
-        </div>
+</div>
 
-        <div class="grid">
+</section>
 
-            <div class="card">
-                <h3>📦 Sipariş Performansı</h3>
-                <h2 style="font-size:35px;margin-top:20px;">248</h2>
-                <p style="color:#7b8495;margin-top:5px;">
-                    Bu ay toplam sipariş
-                </p>
-            </div>
 
-            <div class="card">
-                <h3>⭐ Ortalama Memnuniyet</h3>
-                <h2 style="font-size:35px;margin-top:20px;">4.8 / 5</h2>
-                <p style="color:#7b8495;margin-top:5px;">
-                    Müşteri değerlendirmeleri
-                </p>
-            </div>
 
-        </div>
+<!-- =====================================================
+ORDERS
+===================================================== -->
 
-    </section>
+<section
+id="orders"
+class="page"
+>
 
+<div class="topbar">
 
-    <!-- SETTINGS -->
-    <section id="settings" class="page">
+<div class="page-title">
 
-        <div class="topbar">
-            <div class="page-title">
-                <h1>Ayarlar</h1>
-                <p>BAKSANA sistem ayarları.</p>
-            </div>
-        </div>
+<h1>
+Siparişler
+</h1>
 
-        <div class="card">
+<p>
+Tüm sitelerden gelen siparişleri yönet.
+</p>
 
-            <h3>👑 Admin Hesabı</h3>
+</div>
 
-            <div style="margin-top:20px;max-width:500px;">
 
-                <div class="input">
-                    <label>Admin Adı</label>
-                    <input value="BAKSANA Admin">
-                </div>
+<div class="toolbar">
 
-                <div class="input">
-                    <label>E-posta</label>
-                    <input value="admin@baksana.com">
-                </div>
+<input
+id="orderSearch"
+oninput="renderOrders()"
+placeholder="Sipariş / telefon ara"
+>
 
-                <button class="btn">
-                    Değişiklikleri Kaydet
-                </button>
 
-            </div>
+<select
+id="orderStatusFilter"
+onchange="renderOrders()"
+>
 
-        </div>
+<option value="">
+Tüm Durumlar
+</option>
 
-    </section>
+<option>
+Beklemede
+</option>
+
+<option>
+Kabul Edildi
+</option>
+
+<option>
+Devam Ediyor
+</option>
+
+<option>
+Tamamlandı
+</option>
+
+<option>
+Reddedildi
+</option>
+
+</select>
+
+
+<button
+class="btn small"
+onclick="loadAll()"
+>
+↻ Yenile
+</button>
+
+</div>
+
+</div>
+
+
+<div class="card table-card">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Sipariş
+</th>
+
+<th>
+Hizmet
+</th>
+
+<th>
+Site
+</th>
+
+<th>
+İşletme
+</th>
+
+<th>
+Tarih
+</th>
+
+<th>
+Tutar
+</th>
+
+<th>
+Durum
+</th>
+
+<th>
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+id="ordersBody"
+>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+BUSINESSES
+===================================================== -->
+
+<section
+id="businesses"
+class="page"
+>
+
+<div class="topbar">
+
+<div class="page-title">
+
+<h1>
+İşletmeler
+</h1>
+
+<p>
+BAKSANA'ya bağlı işletmeleri ve site bağlantılarını yönet.
+</p>
+
+</div>
+
+
+<button
+class="btn"
+onclick="openModal('businessModal')"
+>
++ İşletme Ekle
+</button>
+
+</div>
+
+
+<div class="card table-card">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+İşletme
+</th>
+
+<th>
+Kategori
+</th>
+
+<th>
+E-posta
+</th>
+
+<th>
+Telefon
+</th>
+
+<th>
+Siteler
+</th>
+
+<th>
+Durum
+</th>
+
+<th>
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+id="businessBody"
+>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+SITES
+===================================================== -->
+
+<section
+id="sites"
+class="page"
+>
+
+<div class="topbar">
+
+<div class="page-title">
+
+<h1>
+Siteler
+</h1>
+
+<p>
+Site kayıtlarını ve işletme bağlantılarını yönet.
+</p>
+
+</div>
+
+
+<button
+class="btn"
+onclick="openModal('siteModal')"
+>
++ Site Ekle
+</button>
+
+</div>
+
+
+<div class="card table-card">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Site
+</th>
+
+<th>
+Slug
+</th>
+
+<th>
+Adres
+</th>
+
+<th>
+İşletme
+</th>
+
+<th>
+Sipariş
+</th>
+
+<th>
+Durum
+</th>
+
+<th>
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+id="siteBody"
+>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+FINANCE
+===================================================== -->
+
+<section
+id="finance"
+class="page"
+>
+
+<div class="topbar">
+
+<div class="page-title">
+
+<h1>
+Finans
+</h1>
+
+<p>
+Gerçek tamamlanan siparişlerden finansal özet.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="stats">
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Toplam Ciro
+</span>
+
+<div class="stat-icon green">
+💰
+</div>
+
+</div>
+
+<h2 id="finRevenue">
+0 ₺
+</h2>
+
+<p>
+Tüm tamamlanan siparişler
+</p>
+
+</div>
+
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Bekleyen İş
+</span>
+
+<div class="stat-icon orange">
+📦
+</div>
+
+</div>
+
+<h2 id="finPending">
+0
+</h2>
+
+<p>
+Henüz tamamlanmamış
+</p>
+
+</div>
+
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Tamamlanan
+</span>
+
+<div class="stat-icon blue">
+✅
+</div>
+
+</div>
+
+<h2 id="finCompleted">
+0
+</h2>
+
+<p>
+Başarıyla tamamlanan
+</p>
+
+</div>
+
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Reddedilen
+</span>
+
+<div class="stat-icon purple">
+❌
+</div>
+
+</div>
+
+<h2 id="finRejected">
+0
+</h2>
+
+<p>
+Reddedilen siparişler
+</p>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>
+Komisyon
+</h3>
+
+<p class="kpi-note">
+Pilot dönemde komisyon oranı manuel olarak takip edilir.
+Komisyon/ödeme dağıtımı için fiyat ve işletme sözleşme
+modelini netleştirdiğimizde finans modülü genişletilebilir.
+</p>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+REPORTS
+===================================================== -->
+
+<section
+id="reports"
+class="page"
+>
+
+<div class="topbar">
+
+<div class="page-title">
+
+<h1>
+Raporlar
+</h1>
+
+<p>
+Gerçek sipariş verilerinden performans özeti.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="stats">
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Kabul Oranı
+</span>
+
+<div class="stat-icon blue">
+📈
+</div>
+
+</div>
+
+<h2 id="repAcceptance">
+%0
+</h2>
+
+<p>
+Kabul / toplam sipariş
+</p>
+
+</div>
+
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Red Oranı
+</span>
+
+<div class="stat-icon orange">
+↘
+</div>
+
+</div>
+
+<h2 id="repReject">
+%0
+</h2>
+
+<p>
+Reddedilen / toplam
+</p>
+
+</div>
+
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Aktif İşletme
+</span>
+
+<div class="stat-icon purple">
+🏪
+</div>
+
+</div>
+
+<h2 id="repBiz">
+0
+</h2>
+
+<p>
+Şu an aktif
+</p>
+
+</div>
+
+
+
+<div class="stat">
+
+<div class="stat-top">
+
+<span>
+Aktif Site
+</span>
+
+<div class="stat-icon green">
+🏢
+</div>
+
+</div>
+
+<h2 id="repSites">
+0
+</h2>
+
+<p>
+Şu an aktif
+</p>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>
+Hizmet Dağılımı
+</h3>
+
+<div
+id="serviceBreakdown"
+class="kpi-note"
+>
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+SETTINGS
+===================================================== -->
+
+<section
+id="settings"
+class="page"
+>
+
+<div class="topbar">
+
+<div class="page-title">
+
+<h1>
+Ayarlar
+</h1>
+
+<p>
+Admin oturumu ve sistem bilgileri.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>
+👑 Admin Hesabı
+</h3>
+
+
+<div
+style="
+margin-top:16px;
+max-width:650px;
+"
+>
+
+<div class="field">
+
+<label>
+Giriş e-postası
+</label>
+
+<input
+id="settingsEmail"
+readonly
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Rol
+</label>
+
+<input
+value="admin"
+readonly
+>
+
+</div>
+
+
+<button
+class="btn danger"
+onclick="logout()"
+>
+Güvenli Çıkış
+</button>
+
+</div>
+
+</div>
+
+</section>
+
 
 </main>
 
 
-<!-- MOBILE NAV -->
+<!-- MOBILE -->
+
 <nav class="bottom-nav">
 
-    <button class="active" onclick="mobileNav('dashboard',this)">
-        <div>📊</div>
-        Ana Sayfa
-    </button>
+<button
+class="active"
+data-page="dashboard"
+onclick="mobileNav('dashboard',this)"
+>
 
-    <button onclick="mobileNav('orders',this)">
-        <div>📦</div>
-        Sipariş
-    </button>
+<div>
+📊
+</div>
 
-    <button onclick="mobileNav('businesses',this)">
-        <div>🏪</div>
-        İşletme
-    </button>
+Ana Sayfa
 
-    <button onclick="mobileNav('sites',this)">
-        <div>🏢</div>
-        Siteler
-    </button>
+</button>
 
-    <button onclick="mobileNav('finance',this)">
-        <div>💰</div>
-        Finans
-    </button>
+
+<button
+data-page="orders"
+onclick="mobileNav('orders',this)"
+>
+
+<div>
+📦
+</div>
+
+Sipariş
+
+</button>
+
+
+<button
+data-page="businesses"
+onclick="mobileNav('businesses',this)"
+>
+
+<div>
+🏪
+</div>
+
+İşletme
+
+</button>
+
+
+<button
+data-page="sites"
+onclick="mobileNav('sites',this)"
+>
+
+<div>
+🏢
+</div>
+
+Siteler
+
+</button>
+
+
+<button
+data-page="finance"
+onclick="mobileNav('finance',this)"
+>
+
+<div>
+💰
+</div>
+
+Finans
+
+</button>
 
 </nav>
 
+</div>
 
-<!-- BUSINESS MODAL -->
-<div class="modal-bg" id="businessModal">
 
-    <div class="modal">
 
-        <div class="modal-head">
+<!-- =====================================================
+BUSINESS MODAL
+===================================================== -->
 
-            <h2>Yeni İşletme</h2>
+<div
+class="modal-bg"
+id="businessModal"
+>
 
-            <button class="close" onclick="closeModal('businessModal')">
-                ✕
-            </button>
+<div class="modal">
 
-        </div>
+<div class="modal-head">
 
-        <div class="input">
-            <label>İşletme Adı</label>
-            <input placeholder="Örn. Temiz Ev Hizmetleri">
-        </div>
+<h2>
+Yeni İşletme
+</h2>
 
-        <div class="input">
-            <label>Kullanıcı Adı</label>
-            <input placeholder="Örn. temizev">
-        </div>
-
-        <div class="input">
-            <label>Telefon</label>
-            <input placeholder="05xx xxx xx xx">
-        </div>
-
-        <div class="input">
-            <label>Hizmet</label>
-            <select>
-                <option>Ev Temizliği</option>
-                <option>Teknik Servis</option>
-                <option>Araç Yıkama</option>
-                <option>Koltuk Yıkama</option>
-            </select>
-        </div>
-
-        <div class="modal-buttons">
-
-            <button class="btn" onclick="saveBusiness()">
-                İşletmeyi Oluştur
-            </button>
-
-            <button class="btn cancel" onclick="closeModal('businessModal')">
-                Vazgeç
-            </button>
-
-        </div>
-
-    </div>
+<button
+class="close"
+onclick="closeModal('businessModal')"
+>
+✕
+</button>
 
 </div>
 
 
-<!-- SITE MODAL -->
-<div class="modal-bg" id="siteModal">
+<div class="field">
 
-    <div class="modal">
+<label>
+İşletme adı
+</label>
 
-        <div class="modal-head">
-
-            <h2>Yeni Site</h2>
-
-            <button class="close" onclick="closeModal('siteModal')">
-                ✕
-            </button>
-
-        </div>
-
-        <div class="input">
-            <label>Site Adı</label>
-            <input placeholder="Örn. Nova Residence">
-        </div>
-
-        <div class="input">
-            <label>Daire Sayısı</label>
-            <input type="number" placeholder="240">
-        </div>
-
-        <div class="input">
-            <label>Site Kodu</label>
-            <input placeholder="nova">
-        </div>
-
-        <div class="modal-buttons">
-
-            <button class="btn" onclick="saveSite()">
-                Siteyi Oluştur
-            </button>
-
-            <button class="btn cancel" onclick="closeModal('siteModal')">
-                Vazgeç
-            </button>
-
-        </div>
-
-    </div>
+<input
+id="bizName"
+placeholder="Örn. Bursa Teknik Servis"
+>
 
 </div>
 
 
-<!-- ORDER MODAL -->
-<div class="modal-bg" id="orderModal">
+<div class="field">
 
-    <div class="modal">
+<label>
+E-posta
+</label>
 
-        <div class="modal-head">
-
-            <h2 id="orderTitle">Sipariş</h2>
-
-            <button class="close" onclick="closeModal('orderModal')">
-                ✕
-            </button>
-
-        </div>
-
-        <div style="line-height:2;color:#596273;">
-
-            <p><b>Hizmet:</b> Ev Temizliği</p>
-            <p><b>Site:</b> Nova Residence</p>
-            <p><b>Blok:</b> A Blok</p>
-            <p><b>Daire:</b> 14</p>
-            <p><b>Tarih:</b> 3 Ekim 2026</p>
-            <p><b>Saat:</b> 15:00</p>
-            <p><b>İşletme:</b> Temiz Ev Hizmetleri</p>
-            <p><b>Durum:</b> Bekliyor</p>
-
-        </div>
-
-        <div class="modal-buttons">
-
-            <button class="btn">
-                İşletmeye Ata
-            </button>
-
-            <button class="btn cancel" onclick="closeModal('orderModal')">
-                Kapat
-            </button>
-
-        </div>
-
-    </div>
+<input
+id="bizEmail"
+type="email"
+placeholder="ornek@firma.com"
+>
 
 </div>
+
+
+<div class="field">
+
+<label>
+Telefon
+</label>
+
+<input
+id="bizPhone"
+placeholder="05xx xxx xx xx"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Kategori
+</label>
+
+<select
+id="bizCategory"
+>
+
+<option value="Temizlik">
+Temizlik
+</option>
+
+<option value="Teknik Servis">
+Teknik Servis
+</option>
+
+<option value="Araç Yıkama">
+Araç Yıkama
+</option>
+
+<option value="Koltuk Yıkama">
+Koltuk Yıkama
+</option>
+
+</select>
+
+</div>
+
+
+<div class="modal-buttons">
+
+<button
+class="btn"
+onclick="saveBusiness()"
+>
+İşletmeyi Oluştur
+</button>
+
+<button
+class="btn secondary"
+onclick="closeModal('businessModal')"
+>
+Vazgeç
+</button>
+
+</div>
+
+
+<p class="kpi-note">
+
+Not: Bu işlem işletme kaydını oluşturur.
+Giriş hesabı için Supabase Authentication
+kullanıcı kaydı ayrıca oluşturulmalıdır.
+
+</p>
+
+</div>
+
+</div>
+
+
+
+<!-- =====================================================
+SITE MODAL
+===================================================== -->
+
+<div
+class="modal-bg"
+id="siteModal"
+>
+
+<div class="modal">
+
+<div class="modal-head">
+
+<h2>
+Yeni Site
+</h2>
+
+<button
+class="close"
+onclick="closeModal('siteModal')"
+>
+✕
+</button>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Site adı
+</label>
+
+<input
+id="siteNameInput"
+placeholder="Örn. Park Vadi"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Site kodu / slug
+</label>
+
+<input
+id="siteSlugInput"
+placeholder="park-vadi"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Adres
+</label>
+
+<input
+id="siteAddressInput"
+placeholder="Nilüfer, Bursa"
+>
+
+</div>
+
+
+<div class="modal-buttons">
+
+<button
+class="btn"
+onclick="saveSite()"
+>
+Siteyi Oluştur
+</button>
+
+<button
+class="btn secondary"
+onclick="closeModal('siteModal')"
+>
+Vazgeç
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- =====================================================
+BUSINESS DETAIL
+===================================================== -->
+
+<div
+class="modal-bg"
+id="businessDetailModal"
+>
+
+<div class="modal">
+
+<div class="modal-head">
+
+<h2 id="businessDetailTitle">
+İşletme
+</h2>
+
+<button
+class="close"
+onclick="closeModal('businessDetailModal')"
+>
+✕
+</button>
+
+</div>
+
+
+<div
+id="businessDetail"
+>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- =====================================================
+SITE DETAIL
+===================================================== -->
+
+<div
+class="modal-bg"
+id="siteDetailModal"
+>
+
+<div class="modal">
+
+<div class="modal-head">
+
+<h2 id="siteDetailTitle">
+Site
+</h2>
+
+<button
+class="close"
+onclick="closeModal('siteDetailModal')"
+>
+✕
+</button>
+
+</div>
+
+
+<div
+id="siteDetail"
+>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- =====================================================
+ORDER
+===================================================== -->
+
+<div
+class="modal-bg"
+id="orderModal"
+>
+
+<div class="modal">
+
+<div class="modal-head">
+
+<h2>
+Sipariş Detayı
+</h2>
+
+<button
+class="close"
+onclick="closeModal('orderModal')"
+>
+✕
+</button>
+
+</div>
+
+
+<div
+id="orderDetail"
+>
+</div>
+
+</div>
+
+</div>
+
+
+
+<div
+class="flash"
+id="flash"
+>
+</div>
+
 
 
 <script>
 
-function showPage(pageId, button){
+/* =====================================================
+SUPABASE
+===================================================== */
 
-    document.querySelectorAll(".page").forEach(page=>{
-        page.classList.remove("active");
-    });
+const SUPABASE_URL =
+"https://ahvplyeunubpbtsdzldj.supabase.co";
 
-    document.getElementById(pageId).classList.add("active");
+const SUPABASE_KEY =
+"sb_publishable_qF3PlPnw-g4dXeOiL-OSOw_LzKQ9kuO";
 
-    document.querySelectorAll(".menu button").forEach(btn=>{
-        btn.classList.remove("active");
-    });
+const db =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-    if(button){
-        button.classList.add("active");
-    }
 
-    window.scrollTo(0,0);
+/* =====================================================
+GLOBAL
+===================================================== */
+
+let session = null;
+
+let adminProfile = null;
+
+let orders = [];
+
+let businesses = [];
+
+let sites = [];
+
+let siteBusinesses = [];
+
+let realtime = null;
+
+let refreshTimer = null;
+
+
+/* =====================================================
+HELPERS
+===================================================== */
+
+const $ =
+id =>
+document.getElementById(id);
+
+
+function esc(value){
+
+return String(
+value ?? ""
+)
+
+.replace(
+/[&<>"']/g,
+m =>
+({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m])
+);
+
+}
+
+
+function money(value){
+
+return Number(
+value || 0
+)
+.toLocaleString(
+"tr-TR",
+{
+maximumFractionDigits:2
+}
+)
++
+" ₺";
+
 }
 
 
-function mobileNav(pageId,button){
+function dateTR(value){
 
-    showPage(pageId);
+if(!value)
+return "-";
 
-    document.querySelectorAll(".bottom-nav button").forEach(btn=>{
-        btn.classList.remove("active");
-    });
 
-    button.classList.add("active");
+try{
+
+return new Intl.DateTimeFormat(
+"tr-TR",
+{
+day:"2-digit",
+month:"2-digit",
+year:"numeric"
 }
-
-
-function openModal(id){
-
-    document.getElementById(id).classList.add("show");
-
-}
-
-
-function closeModal(id){
-
-    document.getElementById(id).classList.remove("show");
+)
+.format(
+new Date(value)
+);
 
 }
 
+catch{
 
-function saveBusiness(){
-
-    alert("Demo: İşletme oluşturuldu.");
-
-    closeModal("businessModal");
+return String(
+value
+);
 
 }
-
-
-function saveSite(){
-
-    alert("Demo: Site oluşturuldu.");
-
-    closeModal("siteModal");
 
 }
 
 
-function showOrder(order){
+function toast(
+message,
+type="success"
+){
 
-    document.getElementById("orderTitle").innerText =
-        order + " Sipariş Detayı";
+const x =
+$("flash");
 
-    openModal("orderModal");
+x.textContent =
+message;
+
+x.className =
+"flash show " +
+type;
+
+clearTimeout(
+toast.t
+);
+
+toast.t =
+setTimeout(
+()=>{
+x.className =
+"flash";
+},
+3200
+);
 
 }
+
+
+function statusBadge(
+status
+){
+
+const map = {
+
+"Beklemede":
+"waiting",
+
+"Kabul Edildi":
+"accepted",
+
+"Devam Ediyor":
+"progress",
+
+"Tamamlandı":
+"completed",
+
+"Reddedildi":
+"rejected"
+
+};
+
+
+return `
+
+<span
+class="status ${map[status] || "waiting"}"
+>
+
+${esc(
+status ||
+"Beklemede"
+)}
+
+</span>
+
+`;
+
+}
+
+
+function serviceIcon(
+service
+){
+
+if(
+service ===
+"Ev Temizliği"
+)
+return "🧹";
+
+
+if(
+service ===
+"Teknik Servis"
+)
+return "🔧";
+
+
+if(
+service ===
+"Araç Yıkama"
+)
+return "🚗";
+
+
+if(
+service ===
+"Koltuk Yıkama"
+)
+return "🛋️";
+
+
+return "📦";
+
+}
+
+
+function empty(
+icon,
+text
+){
+
+return `
+
+<div class="empty">
+
+<div class="eicon">
+${icon}
+</div>
+
+${esc(text)}
+
+</div>
+
+`;
+
+}
+
+
+/* =====================================================
+LOGIN
+===================================================== */
+
+async function loginAdmin(){
+
+const email =
+$("loginEmail")
+.value
+.trim();
+
+
+const password =
+$("loginPassword")
+.value;
+
+
+const error =
+$("loginError");
+
+
+const button =
+$("loginBtn");
+
+
+error.style.display =
+"none";
+
+
+if(
+!email ||
+!password
+){
+
+error.textContent =
+"E-posta ve şifreyi gir.";
+
+error.style.display =
+"block";
+
+return;
+
+}
+
+
+button.disabled =
+true;
+
+button.textContent =
+"GİRİŞ YAPILIYOR...";
+
+
+const {
+data,
+error:loginError
+} =
+await db
+.auth
+.signInWithPassword({
+
+email,
+
+password
+
+});
+
+
+button.disabled =
+false;
+
+button.textContent =
+"GİRİŞ YAP";
+
+
+if(
+loginError
+){
+
+console.error(
+loginError
+);
+
+error.textContent =
+"Giriş hatası: " +
+loginError.message;
+
+error.style.display =
+"block";
+
+return;
+
+}
+
+
+session =
+data.session;
+
+
+await initAdmin();
+
+}
+
+
+/* =====================================================
+ADMIN
+===================================================== */
+
+async function initAdmin(){
+
+if(
+!session?.user?.id
+){
+
+showLogin();
+
+return;
+
+}
+
+
+const {
+data:profile,
+error
+} =
+await db
+.from(
+"profiles"
+)
+.select(
+"id,role,full_name"
+)
+.eq(
+"id",
+session.user.id
+)
+.maybeSingle();
+
+
+if(error){
+
+console.error(
+error
+);
+
+$("loginError")
+.textContent =
+"Sistem hatası: " +
+error.message;
+
+$("loginError")
+.style.display =
+"block";
+
+return;
+
+}
+
+
+if(
+!profile ||
+profile.role !==
+"admin"
+){
+
+$("loginError")
+.textContent =
+"Bu hesap admin yetkisine sahip değil.";
+
+$("loginError")
+.style.display =
+"block";
+
+await db
+.auth
+.signOut();
+
+return;
+
+}
+
+
+adminProfile =
+profile;
+
+
+$("adminEmail")
+.textContent =
+session.user.email ||
+"Admin";
+
+
+$("settingsEmail")
+.value =
+session.user.email ||
+"";
+
+
+$("loginScreen")
+.style.display =
+"none";
+
+
+$("panel")
+.style.display =
+"block";
+
+
+await loadAll();
+
+
+setupRealtime();
+
+
+startRefresh();
+
+}
+
+
+/* =====================================================
+LOGIN STATE
+===================================================== */
+
+function showLogin(){
+
+$("panel")
+.style.display =
+"none";
+
+
+$("loginScreen")
+.style.display =
+"grid";
+
+
+if(realtime){
+
+db.removeChannel(
+realtime
+);
+
+realtime =
+null;
+
+}
+
+
+clearInterval(
+refreshTimer
+);
+
+refreshTimer =
+null;
+
+
+session =
+null;
+
+adminProfile =
+null;
+
+orders =
+[];
+
+businesses =
+[];
+
+sites =
+[];
+
+siteBusinesses =
+[];
+
+}
+
+
+db.auth
+.onAuthStateChange(
+(
+event,
+newSession
+)=>{
+
+if(
+event ===
+"SIGNED_OUT"
+){
+
+showLogin();
+
+}
+
+});
+
+
+/* =====================================================
+BOOT
+===================================================== */
+
+async function boot(){
+
+try{
+
+const {
+data,
+error
+} =
+await db
+.auth
+.getSession();
+
+
+if(error)
+throw error;
+
+
+session =
+data.session;
+
+
+if(session){
+
+await initAdmin();
+
+}
+
+else{
+
+showLogin();
+
+}
+
+}
+
+catch(error){
+
+console.error(
+error
+);
+
+$("loginError")
+.textContent =
+"Sistem bağlantı hatası: " +
+(
+error.message ||
+"Bilinmeyen hata"
+);
+
+$("loginError")
+.style.display =
+"block";
+
+showLogin();
+
+}
+
+}
+
+
+/* =====================================================
+LOAD ALL
+===================================================== */
+
+async function loadAll(){
+
+const [
+ordersResult,
+businessResult,
+sitesResult,
+linksResult
+] =
+await Promise.all([
+
+db
+.from("orders")
+.select("*")
+.order(
+"created_at",
+{
+ascending:false
+}
+),
+
+db
+.from("businesses")
+.select("*")
+.order(
+"created_at",
+{
+ascending:false
+}
+),
+
+db
+.from("sites")
+.select("*")
+.order(
+"created_at",
+{
+ascending:false
+}
+),
+
+db
+.from("site_businesses")
+.select(
+"id,site_id,business_id,active,created_at"
+)
+
+]);
+
+
+const results = [
+
+ordersResult,
+businessResult,
+sitesResult,
+linksResult
+
+];
+
+
+for(
+const result
+of
+results
+){
+
+if(result.error)
+throw result.error;
+
+}
+
+
+orders =
+ordersResult.data ||
+[];
+
+
+businesses =
+businessResult.data ||
+[];
+
+
+sites =
+sitesResult.data ||
+[];
+
+
+siteBusinesses =
+linksResult.data ||
+[];
+
+
+renderDashboard();
+
+
+renderOrders();
+
+
+renderBusinesses();
+
+
+renderSites();
+
+
+renderFinance();
+
+
+renderReports();
+
+}
+
+
+/* =====================================================
+REALTIME
+===================================================== */
+
+function setupRealtime(){
+
+if(realtime){
+
+db.removeChannel(
+realtime
+);
+
+}
+
+
+realtime =
+db
+.channel(
+"baksana-admin-orders"
+)
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"orders"
+},
+()=>{
+
+loadAll()
+.catch(
+console.error
+);
+
+}
+)
+.subscribe();
+
+}
+
+
+/* =====================================================
+REFRESH
+===================================================== */
+
+function startRefresh(){
+
+clearInterval(
+refreshTimer
+);
+
+
+refreshTimer =
+setInterval(
+()=>{
+
+loadAll()
+.catch(
+console.error
+);
+
+},
+20000
+);
+
+}
+
+
+/* =====================================================
+NAVIGATION
+===================================================== */
+
+function showPage(
+id,
+button
+){
+
+document
+.querySelectorAll(
+".page"
+)
+.forEach(
+page =>
+page.classList.remove(
+"active"
+)
+);
+
+
+const current =
+$(id);
+
+
+if(current)
+current.classList.add(
+"active"
+);
+
+
+document
+.querySelectorAll(
+".menu button[data-page]"
+)
+.forEach(
+btn =>
+btn.classList.remove(
+"active"
+)
+);
+
+
+if(button){
+
+button.classList.add(
+"active"
+);
+
+}
+
+
+document
+.querySelectorAll(
+".bottom-nav button[data-page]"
+)
+.forEach(
+btn =>
+btn.classList.toggle(
+"active",
+btn.dataset.page ===
+id
+)
+);
+
+
+window.scrollTo(
+0,
+0
+);
+
+
+if(id === "orders")
+renderOrders();
+
+
+if(id === "businesses")
+renderBusinesses();
+
+
+if(id === "sites")
+renderSites();
+
+}
+
+
+function mobileNav(
+id,
+button
+){
+
+showPage(
+id
+);
+
+
+document
+.querySelectorAll(
+".bottom-nav button"
+)
+.forEach(
+btn =>
+btn.classList.remove(
+"active"
+)
+);
+
+
+button.classList.add(
+"active"
+);
+
+}
+
+
+/* =====================================================
+DASHBOARD
+===================================================== */
+
+function renderDashboard(){
+
+const completed =
+orders.filter(
+o =>
+o.status ===
+"Tamamlandı"
+);
+
+
+const revenue =
+completed.reduce(
+(
+sum,
+o
+)=>
+sum +
+Number(
+o.price ||
+0
+),
+0
+);
+
+
+const activeBusinesses =
+businesses.filter(
+b =>
+b.active
+).length;
+
+
+const activeSites =
+sites.filter(
+s =>
+s.active
+).length;
+
+
+$("kpiOrders")
+.textContent =
+orders.length;
+
+
+$("kpiBusinesses")
+.textContent =
+activeBusinesses;
+
+
+$("kpiSites")
+.textContent =
+activeSites;
+
+
+$("kpiRevenue")
+.textContent =
+money(
+revenue
+);
+
+
+$("kpiOrdersHint")
+.textContent =
+orders.length
+?
+`${orders.filter(
+o =>
+o.status ===
+"Beklemede"
+).length} bekleyen sipariş`
+:
+"Henüz sipariş yok";
+
+
+const box =
+$("recentOrders");
+
+
+if(
+!orders.length
+){
+
+box.innerHTML =
+empty(
+"📦",
+"Henüz sipariş yok."
+);
+
+return;
+
+}
+
+
+box.innerHTML =
+orders
+.slice(
+0,
+6
+)
+.map(
+o =>
+`
+
+<div class="order-row">
+
+<div class="order-left">
+
+<div class="order-icon">
+
+${serviceIcon(
+o.service
+)}
+
+</div>
+
+
+<div class="order-info">
+
+<strong>
+
+${esc(
+o.order_code ||
+("#"+o.id)
+)}
+
+</strong>
+
+<small>
+
+${esc(
+o.service ||
+"Hizmet"
+)}
+
+•
+
+${esc(
+siteName(
+o.site_id
+)
+)}
+
+</small>
+
+</div>
+
+</div>
+
+
+${statusBadge(
+o.status
+)}
+
+</div>
+
+`
+)
+.join("");
+
+}
+
+
+/* =====================================================
+ORDERS
+===================================================== */
+
+function renderOrders(){
+
+const body =
+$("ordersBody");
+
+
+if(!body)
+return;
+
+
+const search =
+(
+$("orderSearch")
+?.value ||
+""
+)
+.toLowerCase()
+.trim();
+
+
+const filter =
+$("orderStatusFilter")
+?.value ||
+"";
+
+
+const list =
+orders.filter(
+o =>{
+
+const hay = [
+
+o.order_code,
+
+o.service,
+
+o.customer_name,
+
+o.phone,
+
+o.block,
+
+o.apartment,
+
+siteName(
+o.site_id
+),
+
+businessName(
+o.business_id
+)
+
+]
+.join(" ")
+.toLowerCase();
+
+
+return (
+
+!search ||
+hay.includes(
+search
+)
+
+&&
+
+(
+!filter ||
+o.status ===
+filter
+)
+
+);
+
+}
+);
+
+
+if(
+!list.length
+){
+
+body.innerHTML = `
+
+<tr>
+
+<td colspan="8">
+
+${empty(
+"📦",
+"Filtreye uyan sipariş bulunamadı."
+)}
+
+</td>
+
+</tr>
+
+`;
+
+return;
+
+}
+
+
+body.innerHTML =
+list
+.map(
+o =>
+`
+
+<tr>
+
+<td>
+
+<b>
+
+${esc(
+o.order_code ||
+("#"+o.id)
+)}
+
+</b>
+
+</td>
+
+
+<td>
+
+${serviceIcon(
+o.service
+)}
+
+${esc(
+o.service ||
+"-"
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+siteName(
+o.site_id
+)
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+businessName(
+o.business_id
+)
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+dateTR(
+o.service_date
+)
+)}
+
+<br>
+
+<span class="muted">
+
+${esc(
+o.service_time ||
+"-"
+)}
+
+</span>
+
+</td>
+
+
+<td>
+
+${
+o.price !=
+null
+
+?
+
+money(
+o.price
+)
+
+:
+
+"-"
+}
+
+</td>
+
+
+<td>
+
+${statusBadge(
+o.status
+)}
+
+</td>
+
+
+<td>
+
+<button
+class="action"
+onclick="showOrder(${o.id})"
+>
+Görüntüle
+</button>
+
+</td>
+
+</tr>
+
+`
+)
+.join("");
+
+}
+
+
+/* =====================================================
+SHOW ORDER
+===================================================== */
+
+function showOrder(
+id
+){
+
+const o =
+orders.find(
+x =>
+Number(x.id) ===
+Number(id)
+);
+
+
+if(!o)
+return;
+
+
+$("orderDetail")
+.innerHTML = `
+
+<div
+style="
+line-height:1.9;
+color:#596273;
+"
+>
+
+<p>
+
+<b>Sipariş:</b>
+
+${esc(
+o.order_code ||
+("#"+o.id)
+)}
+
+</p>
+
+
+<p>
+
+<b>Hizmet:</b>
+
+${esc(
+o.service
+)}
+
+</p>
+
+
+<p>
+
+<b>Site:</b>
+
+${esc(
+siteName(
+o.site_id
+)
+)}
+
+</p>
+
+
+<p>
+
+<b>İşletme:</b>
+
+${esc(
+businessName(
+o.business_id
+)
+)}
+
+</p>
+
+
+<p>
+
+<b>Müşteri:</b>
+
+${esc(
+o.customer_name ||
+"Site Sakini"
+)}
+
+</p>
+
+
+<p>
+
+<b>Telefon:</b>
+
+${esc(
+o.phone
+)}
+
+</p>
+
+
+<p>
+
+<b>Konum:</b>
+
+${esc(
+o.block
+)}
+
+/
+
+${esc(
+o.apartment
+)}
+
+</p>
+
+
+<p>
+
+<b>Tarih:</b>
+
+${esc(
+dateTR(
+o.service_date
+)
+)}
+
+${esc(
+o.service_time ||
+""
+)}
+
+</p>
+
+
+<p>
+
+<b>Tutar:</b>
+
+${
+o.price !=
+null
+?
+money(
+o.price
+)
+:
+"Fiyat yok"
+}
+
+</p>
+
+
+<p>
+
+<b>Durum:</b>
+
+${statusBadge(
+o.status
+)}
+
+</p>
+
+
+${
+o.note
+?
+`
+<p>
+<b>Not:</b>
+${esc(
+o.note
+)}
+</p>
+`
+:
+""
+}
+
+
+${
+o.rejection_reason
+?
+`
+<p>
+<b>Red nedeni:</b>
+${esc(
+o.rejection_reason
+)}
+</p>
+`
+:
+""
+}
+
+</div>
+
+
+<div class="modal-buttons">
+
+<button
+class="btn"
+onclick="openAssign(${o.id})"
+>
+İşletmeye Ata / Değiştir
+</button>
+
+
+<button
+class="btn secondary"
+onclick="closeModal('orderModal')"
+>
+Kapat
+</button>
+
+</div>
+
+`;
+
+
+openModal(
+"orderModal"
+);
+
+}
+
+
+/* =====================================================
+ASSIGN
+===================================================== */
+
+function openAssign(
+id
+){
+
+const o =
+orders.find(
+x =>
+Number(x.id) ===
+Number(id)
+);
+
+
+if(!o)
+return;
+
+
+const eligible =
+siteBusinesses
+.filter(
+x =>
+Number(
+x.site_id
+) ===
+Number(
+o.site_id
+)
+&&
+x.active
+);
+
+
+const biz =
+eligible
+.map(
+x =>
+businesses.find(
+b =>
+Number(b.id) ===
+Number(
+x.business_id
+)
+)
+)
+.filter(
+Boolean
+);
+
+
+$("orderDetail")
+.innerHTML = `
+
+<div class="field">
+
+<label>
+
+${esc(
+o.order_code ||
+("#"+o.id)
+)}
+
+siparişini
+
+${esc(
+siteName(
+o.site_id
+)
+)}
+
+sitesindeki işletmeye ata
+
+</label>
+
+
+<select
+id="assignBusinessId"
+>
+
+<option value="">
+İşletme seçin
+</option>
+
+
+${
+biz
+.map(
+b =>
+`
+
+<option
+value="${b.id}"
+${
+Number(
+b.id
+) ===
+Number(
+o.business_id
+)
+?
+"selected"
+:
+""
+}
+>
+
+${esc(
+b.name
+)}
+
+—
+
+${esc(
+b.category ||
+""
+)}
+
+</option>
+
+`
+)
+.join("")
+}
+
+</select>
+
+</div>
+
+
+${
+!biz.length
+?
+`
+<p
+class="kpi-note"
+style="
+color:#b91c1c;
+"
+>
+Bu siteye bağlı aktif işletme yok.
+Önce Site → İşletme bağlantısı oluşturun.
+</p>
+`
+:
+""
+}
+
+
+<div class="modal-buttons">
+
+<button
+class="btn"
+onclick="assignOrder(${o.id})"
+${
+biz.length
+?
+""
+:
+"disabled"
+}
+>
+Atamayı Kaydet
+</button>
+
+
+<button
+class="btn secondary"
+onclick="showOrder(${o.id})"
+>
+Geri
+</button>
+
+</div>
+
+`;
+
+}
+
+
+async function assignOrder(
+id
+){
+
+const businessId =
+Number(
+$("assignBusinessId")
+.value
+);
+
+
+if(!businessId){
+
+toast(
+"İşletme seç.",
+"error"
+);
+
+return;
+
+}
+
+
+const {
+error
+} =
+await db
+.rpc(
+"admin_assign_order",
+{
+p_order_id:
+Number(id),
+
+p_business_id:
+businessId
+}
+);
+
+
+if(error){
+
+console.error(
+error
+);
+
+toast(
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+await loadAll();
+
+
+showOrder(
+id
+);
+
+
+toast(
+"Sipariş işletmeye atandı."
+);
+
+}
+
+
+/* =====================================================
+BUSINESSES
+===================================================== */
+
+function renderBusinesses(){
+
+const body =
+$("businessBody");
+
+
+if(!body)
+return;
+
+
+if(
+!businesses.length
+){
+
+body.innerHTML = `
+
+<tr>
+
+<td colspan="7">
+
+${empty(
+"🏪",
+"Henüz işletme yok."
+)}
+
+</td>
+
+</tr>
+
+`;
+
+return;
+
+}
+
+
+body.innerHTML =
+businesses
+.map(
+b =>{
+
+const links =
+siteBusinesses
+.filter(
+x =>
+Number(
+x.business_id
+) ===
+Number(
+b.id
+)
+&&
+x.active
+)
+.map(
+x =>
+siteName(
+x.site_id
+)
+)
+.filter(
+Boolean
+);
+
+
+const count =
+orders.filter(
+o =>
+Number(
+o.business_id
+) ===
+Number(
+b.id
+)
+).length;
+
+
+return `
+
+<tr>
+
+<td>
+
+<b>
+
+${esc(
+b.name
+)}
+
+</b>
+
+</td>
+
+
+<td>
+
+${esc(
+b.category ||
+"-"
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+b.email ||
+"-"
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+b.phone ||
+"-"
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+links.join(
+", "
+) ||
+"-"
+)}
+
+</td>
+
+
+<td>
+
+${
+b.active
+
+?
+
+`
+<span
+class="status completed"
+>
+Aktif
+</span>
+`
+
+:
+
+`
+<span
+class="status rejected"
+>
+Pasif
+</span>
+`
+
+}
+
+</td>
+
+
+<td>
+
+<button
+class="action"
+onclick="showBusiness(${b.id})"
+>
+Yönet
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+}
+)
+.join("");
+
+}
+
+
+/* =====================================================
+BUSINESS DETAIL
+===================================================== */
+
+function showBusiness(
+id
+){
+
+const b =
+businesses.find(
+x =>
+Number(x.id) ===
+Number(id)
+);
+
+
+if(!b)
+return;
+
+
+const links =
+siteBusinesses
+.filter(
+x =>
+Number(
+x.business_id
+) ===
+Number(b.id)
+&&
+x.active
+);
+
+
+$("businessDetailTitle")
+.textContent =
+b.name;
+
+
+$("businessDetail")
+.innerHTML = `
+
+<div
+style="
+line-height:1.9;
+color:#596273;
+"
+>
+
+<p>
+
+<b>Kategori:</b>
+
+${esc(
+b.category ||
+"-"
+)}
+
+</p>
+
+
+<p>
+
+<b>E-posta:</b>
+
+${esc(
+b.email ||
+"-"
+)}
+
+</p>
+
+
+<p>
+
+<b>Telefon:</b>
+
+${esc(
+b.phone ||
+"-"
+)}
+
+</p>
+
+
+<p>
+
+<b>Durum:</b>
+
+${
+b.active
+?
+"Aktif"
+:
+"Pasif"
+}
+
+</p>
+
+
+<p>
+
+<b>Siteler:</b>
+
+${esc(
+links
+.map(
+x =>
+siteName(
+x.site_id
+)
+)
+.join(
+", "
+)
+||
+"Bağlı site yok"
+)}
+
+</p>
+
+
+<p>
+
+<b>Sipariş sayısı:</b>
+
+${
+orders.filter(
+o =>
+Number(
+o.business_id
+) ===
+Number(b.id)
+).length
+}
+
+</p>
+
+</div>
+
+
+<div
+class="card"
+style="
+margin-top:15px;
+padding:14px;
+border:1px solid var(--bd);
+box-shadow:none;
+"
+>
+
+<h3
+style="
+margin-bottom:12px;
+"
+>
+Site bağlantısı
+</h3>
+
+
+<div class="field">
+
+<label>
+Bu işletmeyi hangi siteye bağlayalım?
+</label>
+
+
+<select
+id="linkSiteId"
+>
+
+<option value="">
+Site seçin
+</option>
+
+
+${
+sites
+.map(
+s =>
+`
+
+<option
+value="${s.id}"
+>
+
+${esc(
+s.name
+)}
+
+</option>
+
+`
+)
+.join("")
+}
+
+</select>
+
+</div>
+
+
+<button
+class="btn"
+onclick="linkBusinessToSite(${b.id})"
+>
+Siteye Bağla
+</button>
+
+</div>
+
+
+<div class="modal-buttons">
+
+<button
+class="btn ${
+b.active
+?
+"danger"
+:
+"secondary"
+}"
+onclick="toggleBusiness(${b.id})"
+>
+
+${
+b.active
+?
+"İşletmeyi Pasifleştir"
+:
+"İşletmeyi Aktifleştir"
+}
+
+</button>
+
+
+<button
+class="btn secondary"
+onclick="closeModal('businessDetailModal')"
+>
+Kapat
+</button>
+
+</div>
+
+`;
+
+
+openModal(
+"businessDetailModal"
+);
+
+}
+
+
+/* =====================================================
+SAVE BUSINESS
+===================================================== */
+
+async function saveBusiness(){
+
+const name =
+$("bizName")
+.value
+.trim();
+
+
+const email =
+$("bizEmail")
+.value
+.trim();
+
+
+const phone =
+$("bizPhone")
+.value
+.trim();
+
+
+const category =
+$("bizCategory")
+.value;
+
+
+if(
+!name ||
+!category
+){
+
+toast(
+"İşletme adı ve kategori gerekli.",
+"error"
+);
+
+return;
+
+}
+
+
+const {
+error
+} =
+await db
+.from(
+"businesses"
+)
+.insert({
+
+name,
+
+email:
+email ||
+null,
+
+phone:
+phone ||
+null,
+
+category,
+
+active:
+true
+
+});
+
+
+if(error){
+
+console.error(
+error
+);
+
+toast(
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+$("bizName")
+.value =
+"";
+
+
+$("bizEmail")
+.value =
+"";
+
+
+$("bizPhone")
+.value =
+"";
+
+
+closeModal(
+"businessModal"
+);
+
+
+await loadAll();
+
+
+toast(
+"İşletme oluşturuldu."
+);
+
+}
+
+
+/* =====================================================
+TOGGLE BUSINESS
+===================================================== */
+
+async function toggleBusiness(
+id
+){
+
+const b =
+businesses.find(
+x =>
+Number(x.id) ===
+Number(id)
+);
+
+
+if(!b)
+return;
+
+
+const {
+error
+} =
+await db
+.from(
+"businesses"
+)
+.update({
+active:
+!b.active
+})
+.eq(
+"id",
+id
+);
+
+
+if(error){
+
+toast(
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+closeModal(
+"businessDetailModal"
+);
+
+
+await loadAll();
+
+
+toast(
+b.active
+?
+"İşletme pasifleştirildi."
+:
+"İşletme aktifleştirildi."
+);
+
+}
+
+
+/* =====================================================
+LINK BUSINESS
+===================================================== */
+
+async function linkBusinessToSite(
+businessId
+){
+
+const siteId =
+Number(
+$("linkSiteId")
+.value
+);
+
+
+if(!siteId){
+
+toast(
+"Site seç.",
+"error"
+);
+
+return;
+
+}
+
+
+const {
+error
+} =
+await db
+.from(
+"site_businesses"
+)
+.upsert(
+{
+site_id:
+siteId,
+
+business_id:
+businessId,
+
+active:
+true
+
+},
+{
+onConflict:
+"site_id,business_id"
+}
+);
+
+
+if(error){
+
+toast(
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+await loadAll();
+
+
+showBusiness(
+businessId
+);
+
+
+toast(
+"İşletme siteye bağlandı."
+);
+
+}
+
+
+/* =====================================================
+SITES
+===================================================== */
+
+function renderSites(){
+
+const body =
+$("siteBody");
+
+
+if(!body)
+return;
+
+
+if(
+!sites.length
+){
+
+body.innerHTML = `
+
+<tr>
+
+<td colspan="7">
+
+${empty(
+"🏢",
+"Henüz site yok."
+)}
+
+</td>
+
+</tr>
+
+`;
+
+return;
+
+}
+
+
+body.innerHTML =
+sites
+.map(
+s =>{
+
+const bizCount =
+siteBusinesses
+.filter(
+x =>
+Number(
+x.site_id
+) ===
+Number(
+s.id
+)
+&&
+x.active
+)
+.length;
+
+
+const orderCount =
+orders.filter(
+o =>
+Number(
+o.site_id
+) ===
+Number(
+s.id
+)
+)
+.length;
+
+
+return `
+
+<tr>
+
+<td>
+
+<b>
+
+${esc(
+s.name
+)}
+
+</b>
+
+</td>
+
+
+<td>
+
+${esc(
+s.slug
+)}
+
+</td>
+
+
+<td>
+
+${esc(
+s.address ||
+"-"
+)}
+
+</td>
+
+
+<td>
+
+${bizCount}
+
+</td>
+
+
+<td>
+
+${orderCount}
+
+</td>
+
+
+<td>
+
+${
+s.active
+
+?
+
+`
+<span
+class="status completed"
+>
+Aktif
+</span>
+`
+
+:
+
+`
+<span
+class="status rejected"
+>
+Pasif
+</span>
+`
+
+}
+
+</td>
+
+
+<td>
+
+<button
+class="action"
+onclick="showSite(${s.id})"
+>
+Yönet
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+}
+)
+.join("");
+
+}
+
+
+/* =====================================================
+SITE DETAIL
+===================================================== */
+
+function showSite(
+id
+){
+
+const s =
+sites.find(
+x =>
+Number(x.id) ===
+Number(id)
+);
+
+
+if(!s)
+return;
+
+
+const links =
+siteBusinesses
+.filter(
+x =>
+Number(
+x.site_id
+) ===
+Number(s.id)
+&&
+x.active
+);
+
+
+$("siteDetailTitle")
+.textContent =
+s.name;
+
+
+$("siteDetail")
+.innerHTML = `
+
+<div
+style="
+line-height:1.9;
+color:#596273;
+"
+>
+
+<p>
+
+<b>Site:</b>
+
+${esc(
+s.name
+)}
+
+</p>
+
+
+<p>
+
+<b>Slug:</b>
+
+${esc(
+s.slug
+)}
+
+</p>
+
+
+<p>
+
+<b>Adres:</b>
+
+${esc(
+s.address ||
+"-"
+)}
+
+</p>
+
+
+<p>
+
+<b>Aktif işletme:</b>
+
+${links.length}
+
+</p>
+
+
+<p>
+
+<b>Sipariş:</b>
+
+${
+orders.filter(
+o =>
+Number(
+o.site_id
+) ===
+Number(
+s.id
+)
+).length
+}
+
+</p>
+
+</div>
+
+
+<div
+style="
+margin-top:15px;
+padding:13px;
+background:#f8f9fc;
+border-radius:12px;
+"
+>
+
+<b>
+Site bağlantısı
+</b>
+
+
+<div
+class="kpi-note"
+>
+
+Müşteri bağlantısı:
+
+<br>
+
+https://nfcova.github.io/site-hizmet/?site=${
+encodeURIComponent(
+s.slug
+)
+}
+
+</div>
+
+</div>
+
+
+<div class="modal-buttons">
+
+<button
+class="btn ${
+s.active
+?
+"danger"
+:
+"secondary"
+}"
+onclick="toggleSite(${s.id})"
+>
+
+${
+s.active
+?
+"Siteyi Pasifleştir"
+:
+"Siteyi Aktifleştir"
+}
+
+</button>
+
+
+<button
+class="btn secondary"
+onclick="closeModal('siteDetailModal')"
+>
+Kapat
+</button>
+
+</div>
+
+`;
+
+
+openModal(
+"siteDetailModal"
+);
+
+}
+
+
+/* =====================================================
+SAVE SITE
+===================================================== */
+
+async function saveSite(){
+
+const name =
+$("siteNameInput")
+.value
+.trim();
+
+
+const slug =
+$("siteSlugInput")
+.value
+.trim()
+.toLowerCase();
+
+
+const address =
+$("siteAddressInput")
+.value
+.trim();
+
+
+if(
+!name ||
+!slug
+){
+
+toast(
+"Site adı ve slug gerekli.",
+"error"
+);
+
+return;
+
+}
+
+
+const {
+error
+} =
+await db
+.from(
+"sites"
+)
+.insert({
+
+name,
+
+slug,
+
+address:
+address ||
+null,
+
+active:
+true
+
+});
+
+
+if(error){
+
+toast(
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+$("siteNameInput")
+.value =
+"";
+
+
+$("siteSlugInput")
+.value =
+"";
+
+
+$("siteAddressInput")
+.value =
+"";
+
+
+closeModal(
+"siteModal"
+);
+
+
+await loadAll();
+
+
+toast(
+"Site oluşturuldu."
+);
+
+}
+
+
+/* =====================================================
+TOGGLE SITE
+===================================================== */
+
+async function toggleSite(
+id
+){
+
+const s =
+sites.find(
+x =>
+Number(x.id) ===
+Number(id)
+);
+
+
+if(!s)
+return;
+
+
+const {
+error
+} =
+await db
+.from(
+"sites"
+)
+.update({
+active:
+!s.active
+})
+.eq(
+"id",
+id
+);
+
+
+if(error){
+
+toast(
+error.message,
+"error"
+);
+
+return;
+
+}
+
+
+closeModal(
+"siteDetailModal"
+);
+
+
+await loadAll();
+
+
+toast(
+s.active
+?
+"Site pasifleştirildi."
+:
+"Site aktifleştirildi."
+);
+
+}
+
+
+/* =====================================================
+FINANCE
+===================================================== */
+
+function renderFinance(){
+
+const completed =
+orders.filter(
+o =>
+o.status ===
+"Tamamlandı"
+);
+
+
+$("finRevenue")
+.textContent =
+money(
+completed.reduce(
+(
+sum,
+o
+)=>
+sum +
+Number(
+o.price ||
+0
+),
+0
+)
+);
+
+
+$("finPending")
+.textContent =
+orders.filter(
+o =>
+o.status ===
+"Beklemede"
+)
+.length;
+
+
+$("finCompleted")
+.textContent =
+completed.length;
+
+
+$("finRejected")
+.textContent =
+orders.filter(
+o =>
+o.status ===
+"Reddedildi"
+)
+.length;
+
+}
+
+
+/* =====================================================
+REPORTS
+===================================================== */
+
+function renderReports(){
+
+const total =
+orders.length;
+
+
+const rejected =
+orders.filter(
+o =>
+o.status ===
+"Reddedildi"
+).length;
+
+
+const accepted =
+orders.filter(
+o =>
+[
+"Kabul Edildi",
+"Devam Ediyor",
+"Tamamlandı"
+]
+.includes(
+o.status
+)
+).length;
+
+
+$("repAcceptance")
+.textContent =
+"%"+
+(
+total
+?
+Math.round(
+accepted /
+total *
+100
+)
+:
+0
+);
+
+
+$("repReject")
+.textContent =
+"%"+
+(
+total
+?
+Math.round(
+rejected /
+total *
+100
+)
+:
+0
+);
+
+
+$("repBiz")
+.textContent =
+businesses.filter(
+b =>
+b.active
+)
+.length;
+
+
+$("repSites")
+.textContent =
+sites.filter(
+s =>
+s.active
+)
+.length;
+
+
+const map = {};
+
+
+orders.forEach(
+o =>{
+
+map[o.service] =
+(
+map[o.service] ||
+0
+) +
+1;
+
+});
+
+
+$("serviceBreakdown")
+.innerHTML =
+Object.keys(
+map
+).length
+
+?
+
+Object
+.entries(
+map
+)
+.sort(
+(
+a,
+b
+)=>
+b[1]-a[1]
+)
+.map(
+(
+[
+name,
+count
+]
+)=>
+`
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+padding:9px 0;
+border-bottom:1px solid #edf0f5;
+"
+>
+
+<span>
+
+${serviceIcon(
+name
+)}
+
+${esc(
+name
+)}
+
+</span>
+
+<b>
+
+${count}
+
+</b>
+
+</div>
+
+`
+)
+.join("")
+
+:
+
+"Henüz sipariş verisi yok.";
+
+}
+
+
+/* =====================================================
+MODALS
+===================================================== */
+
+function openModal(
+id
+){
+
+$(id)
+.classList.add(
+"show"
+);
+
+}
+
+
+function closeModal(
+id
+){
+
+$(id)
+.classList.remove(
+"show"
+);
+
+}
+
+
+document
+.querySelectorAll(
+".modal-bg"
+)
+.forEach(
+modal =>{
+
+modal.addEventListener(
+"click",
+e =>{
+
+if(
+e.target ===
+modal
+){
+
+modal.classList.remove(
+"show"
+);
+
+}
+
+}
+);
+
+}
+);
+
+
+/* =====================================================
+LOGOUT
+===================================================== */
+
+async function logout(){
+
+await db
+.auth
+.signOut();
+
+showLogin();
+
+}
+
+
+/* =====================================================
+ENTER LOGIN
+===================================================== */
+
+$("loginEmail")
+.addEventListener(
+"keydown",
+e =>{
+
+if(
+e.key ===
+"Enter"
+){
+
+loginAdmin();
+
+}
+
+}
+);
+
+
+$("loginPassword")
+.addEventListener(
+"keydown",
+e =>{
+
+if(
+e.key ===
+"Enter"
+){
+
+loginAdmin();
+
+}
+
+}
+);
+
+
+/* =====================================================
+START
+===================================================== */
+
+boot();
 
 </script>
 
